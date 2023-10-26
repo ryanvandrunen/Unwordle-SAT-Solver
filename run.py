@@ -1,5 +1,5 @@
 
-from bauhaus import Encoding, proposition, constraint
+from bauhaus import Encoding, proposition, constraint, Or, And
 from bauhaus.utils import count_solutions, likelihood
 
 # These two lines make sure a faster SAT solver is used.
