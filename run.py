@@ -48,56 +48,25 @@ class FancyPropositions:
         return f"A.{self.data}"
     
 @proposition(E)
-class GreenSquare(Hashable):
-    def __init__(self, x_index, y_index) -> None:
+class Tile(Hashable):
+    def __init__(self, x_index, y_index, colour, letters) -> None:
         self.x_index = x_index
         self.y_index = y_index
+        self.colour = colour
+        self.letters = letters
 
-    def __str__(self) -> str:
-        return f"Green square at ({x_index}, {y_index})"
+        return f"{colour} tile at ({x_index}, {y_index} with possible letters: {letters})"
 
-class GreenLetter(Hashable):
-    def __init__(self, letter, x_index, y_index) -> None:
-        self.letter = letter
-        self.x_index = x_index
-        self.y_index = y_index
-     
+@proposition(E)   
+class Row(Hashable):
+    def __init__(self, row_number, squares, letters) -> None:
+        self.row_number = row_number
+        self.squares = squares
+        self.letters = letters
+        
     def __str__(self) -> str:
-        return f"Green {letter} at ({x_index}, {y_index})"
-    
-class YellowSquare(Hashable):
-    def __init__(self, x_index, y_index) -> None:
-        self.x_index = x_index
-        self.y_index = y_index
+        pass
 
-    def __str__(self) -> str:
-        return f"Yellow square at ({x_index}, {y_index})"
-
-class YellowLetter(Hashable):
-    def __init__(self, letter, x_index, y_index) -> None:
-        self.letter = letter
-        self.x_index = x_index
-        self.y_index = y_index
-     
-    def __str__(self) -> str:
-        return f"Yellow {letter} at ({x_index}, {y_index})"
-    
-class WhiteSquare(Hashable):
-    def __init__(self, x_index, y_index) -> None:
-        self.x_index = x_index
-        self.y_index = y_index
-
-    def __str__(self) -> str:
-        return f"White square at ({x_index}, {y_index})"
-    
-class WhiteLetter(Hashable):
-    def __init__(self, letter, x_index, y_index) -> None:
-        self.letter = letter
-        self.x_index = x_index
-        self.y_index = y_index
-     
-    def __str__(self) -> str:
-        return f"White {letter} at ({x_index}, {y_index})"
 
 # Call your variables whatever you want
 a = BasicPropositions("a")
