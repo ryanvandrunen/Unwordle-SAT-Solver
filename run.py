@@ -1,4 +1,5 @@
 from words import WORDS
+import random
 
 from bauhaus import Encoding, proposition, constraint, Or, And
 from bauhaus.utils import count_solutions, likelihood
@@ -20,18 +21,6 @@ class Hashable:
     def __repr__(self):
         return str(self)
 
-
-# To create propositions, create classes for them first, annotated with "@proposition" and the Encoding
-@proposition(E)
-class BasicPropositions:
-
-    def __init__(self, data):
-        self.data = data
-
-    def __repr__(self):
-        return f"A.{self.data}"
-
-
 # Different classes for propositions are useful because this allows for more dynamic constraint creation
 # for propositions within that class. For example, you can enforce that "at least one" of the propositions
 # that are instances of this class must be true by using a @constraint decorator.
@@ -49,14 +38,12 @@ class FancyPropositions:
     
 @proposition(E)
 class Tile(Hashable):
-    def __init__(self, x_index, y_index, colour, letters) -> None:
-        self.x_index = x_index
-        self.y_index = y_index
+    def __init__(self, colour, letters) -> None:
         self.colour = colour
         self.letters = letters
 
     def __str__(self) -> str:
-        return f"{self.colour} tile at ({self.x_index}, {self.y_index} with possible letters: {self.letters})"
+        return f"{self.colour} tile with possible letters: {self.letters}"
 
 @proposition(E)   
 class Row(Hashable):
@@ -75,19 +62,6 @@ class Board(Hashable):
 
     def __str__(self) -> str:
         return f"{self.rows[0]} \n {self.rows[1]} \n {self.rows[2]} \n {self.rows[3]}"
-    
-
-
-# Call your variables whatever you want
-a = BasicPropositions("a")
-b = BasicPropositions("b")   
-c = BasicPropositions("c")
-d = BasicPropositions("d")
-e = BasicPropositions("e")
-# At least one of these will be true
-x = FancyPropositions("x")
-y = FancyPropositions("y")
-z = FancyPropositions("z")
 
 
 # Build an example full theory for your setting and return it.
@@ -95,34 +69,66 @@ z = FancyPropositions("z")
 #  There should be at least 10 variables, and a sufficiently large formula to describe it (>50 operators).
 #  This restriction is fairly minimal, and if there is any concern, reach out to the teaching staff to clarify
 #  what the expectations are.
-def example_theory():
+def build_theory():
     # Add custom constraints by creating formulas with the variables you created. 
-    E.add_constraint((a | b) & ~x)
-    # Implication
-    E.add_constraint(y >> z)
-    # Negate a formula
-    E.add_constraint(~(x & y))
-    # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
-    # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
-    constraint.add_exactly_one(E, a, b, c)
+    # E.add_constraint((a | b) & ~x)
+    # # Implication
+    # E.add_constraint(y >> z)
+    # # Negate a formula
+    # E.add_constraint(~(x & y))
+    # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
+    # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
+    # constraint.add_exactly_one(E, a, b, c)
+
+    
 
     return E
 
+def board_gen():
+    # Pick random word from word bank
+    word = WORDS[random.randint(0, 3835)]
+    # Generate rows
+    rows = 5*[None], 5*[None], 5*[None], 5*[None]
+    # Initialize possible colours
+    colours = ['Green', 'Yellow', 'White']
+    # Fill bottom row with green tiles and letters of the random word
+    for i in range(5):
+        rows[3][i] = Tile('Green', word[i])
+    # Iterate through rows and elements
+    for i in range(2, -1, -1):
+        for j in range(5):
+            # Pick random colour and create a tile with that colour
+            r = random.randint(0, len(colours)-1)
+            rows[i][j] = Tile(colours[r], None)
+        # Add more yellows (higher chance to generate)
+        for k in range(i):
+            colours.append('Yellow')
+        # Add more whites (higher chance to generate)
+        for l in range(i+1):
+            colours.append('White')
+    return rows
+
+        
+
+    
 
 if __name__ == "__main__":
 
-    T = example_theory()
-    # Don't compile until you're finished adding all your constraints!
-    T = T.compile()
+    # T = build_theory()
+    # # Don't compile until you're finished adding all your constraints!
+    # T = T.compile()
     # After compilation (and only after), you can check some of the properties
     # of your model:
-    print("\nSatisfiable: %s" % T.satisfiable())
-    print("# Solutions: %d" % count_solutions(T))
-    print("   Solution: %s" % T.solve())
+    # print("\nSatisfiable: %s" % T.satisfiable())
+    # print("# Solutions: %d" % count_solutions(T))
+    # print("   Solution: %s" % T.solve())
 
-    print("\nVariable likelihoods:")
-    for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
-        # Ensure that you only send these functions NNF formulas
-        # Literals are compiled to NNF here
-        print(" %s: %.2f" % (vn, likelihood(T, v)))
-    print()
+    # print("\nVariable likelihoods:")
+    # for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
+    #     # Ensure that you only send these functions NNF formulas
+    #     # Literals are compiled to NNF here
+    #     print(" %s: %.2f" % (vn, likelihood(T, v)))
+    # print()
+    board = board_gen()
+    for row in board:
+        print(row)
