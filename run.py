@@ -108,6 +108,10 @@ def board_gen():
             colours.append('White')
     return rows
 
+def display_board(board):
+    for row in board:
+        print(f"({row[0].colour},{row[0].letters}) ({row[1].colour},{row[1].letters}) ({row[2].colour},{row[2].letters}) ({row[3].colour},{row[3].letters}) ({row[4].colour},{row[4].letters})")
+
         
 
     
@@ -130,5 +134,4 @@ if __name__ == "__main__":
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
     board = board_gen()
-    for row in board:
-        print(row)
+    display_board(board)
