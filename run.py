@@ -55,17 +55,27 @@ class Tile(Hashable):
         self.colour = colour
         self.letters = letters
 
-        return f"{colour} tile at ({x_index}, {y_index} with possible letters: {letters})"
+    def __str__(self) -> str:
+        return f"{self.colour} tile at ({self.x_index}, {self.y_index} with possible letters: {self.letters})"
 
 @proposition(E)   
 class Row(Hashable):
-    def __init__(self, row_number, squares, letters) -> None:
+    def __init__(self, row_number, letters) -> None:
         self.row_number = row_number
-        self.squares = squares
         self.letters = letters
         
     def __str__(self) -> str:
-        pass
+        return f"Row {self.row_number} contains {self.letters}"
+
+
+@proposition(E)
+class Board(Hashable):
+    def __init__(self, rows) -> None:
+        self.rows = rows
+
+    def __str__(self) -> str:
+        return f"{self.rows[0]} \n {self.rows[1]} \n {self.rows[2]} \n {self.rows[3]}"
+    
 
 
 # Call your variables whatever you want
