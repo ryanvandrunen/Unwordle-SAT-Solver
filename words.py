@@ -1,4 +1,4 @@
-words=["their",
+WORDS=["their",
 "about",
 "would",
 "other",

@@ -1,3 +1,4 @@
+from words import WORDS
 
 from bauhaus import Encoding, proposition, constraint, Or, And
 from bauhaus.utils import count_solutions, likelihood
