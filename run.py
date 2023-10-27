@@ -69,7 +69,15 @@ class Board(Hashable):
 #  There should be at least 10 variables, and a sufficiently large formula to describe it (>50 operators).
 #  This restriction is fairly minimal, and if there is any concern, reach out to the teaching staff to clarify
 #  what the expectations are.
+
 def build_theory():
+
+    #Green squares at some index must be filled by the letter at the same index as before it 
+    for row in board[::-1]: 
+        for letter in row: 
+            if letter.colour == 'Green': 
+                E.add_constraint()
+
     # Add custom constraints by creating formulas with the variables you created. 
     # E.add_constraint((a | b) & ~x)
     # # Implication
@@ -80,7 +88,6 @@ def build_theory():
     # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
     # constraint.add_exactly_one(E, a, b, c)
 
-    
 
     return E
 
@@ -135,3 +142,4 @@ if __name__ == "__main__":
     # print()
     board = board_gen()
     display_board(board)
+    build_theory()
