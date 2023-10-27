@@ -37,13 +37,40 @@ class FancyPropositions:
         return f"A.{self.data}"
     
 @proposition(E)
-class Tile(Hashable):
-    def __init__(self, colour, letters) -> None:
-        self.colour = colour
-        self.letters = letters
+class Letter(Hashable):
+    def __init__(self, letter) -> None:
+        self.letter = letter
 
     def __str__(self) -> str:
-        return f"{self.colour} tile with possible letters: {self.letters}"
+        return f"{self.letter}"
+    
+@proposition(E)
+class Colour(Hashable):
+    def __init__(self, colour) -> None:
+        self.colour = colour
+    
+    def __str__(self) -> str:
+        return f"{self.colour}"
+
+    
+@proposition(E)
+class Tile(Hashable):
+    def __init__(self, x_index, y_index) -> None:
+        self.x_index = x_index
+        self.y_index = y_index
+
+    def __str__(self) -> str:
+        return f"({self.x_index}, {self.y_index})"
+
+@proposition(E)
+class Assigned(Hashable):
+    def __init__(self, tile, colour, letter) -> None:
+        self.tile = tile
+        self.colour = colour
+        self.letter = letter
+
+    def __str__(self) -> str:
+        return f"{self.colour} {self.letter} at {self.tile})"
 
 @proposition(E)   
 class Row(Hashable):
@@ -72,10 +99,13 @@ class Board(Hashable):
 
 def build_theory():
 
+    #run through board and assign colour to every tile in board 
+
+    #run through 
     #Green squares at some index must be filled by the letter at the same index as before it 
     for row in board[::-1]: 
         for letter in row: 
-            if letter.colour == 'Green': 
+            
                 E.add_constraint()
 
     # Add custom constraints by creating formulas with the variables you created. 
@@ -100,13 +130,13 @@ def board_gen():
     colours = ['Green', 'Yellow', 'White']
     # Fill bottom row with green tiles and letters of the random word
     for i in range(5):
-        rows[3][i] = Tile('Green', word[i])
+        rows[3][i] = Tile(3, i)
     # Iterate through rows and elements
     for i in range(2, -1, -1):
         for j in range(5):
             # Pick random colour and create a tile with that colour
             r = random.randint(0, len(colours)-1)
-            rows[i][j] = Tile(colours[r], None)
+            rows[i][j] = Tile(i, j)
         # Add more yellows (higher chance to generate)
         for k in range(i):
             colours.append('Yellow')
@@ -119,9 +149,6 @@ def display_board(board):
     for row in board:
         print(f"({row[0].colour},{row[0].letters}) ({row[1].colour},{row[1].letters}) ({row[2].colour},{row[2].letters}) ({row[3].colour},{row[3].letters}) ({row[4].colour},{row[4].letters})")
 
-        
-
-    
 
 if __name__ == "__main__":
 
