@@ -36,7 +36,7 @@ class FancyPropositions:
     def __repr__(self):
         return f"A.{self.data}"
     
-@propositions(E)
+@proposition(E)
 class Letter(Hashable):
     def __init__(self, letter) -> None:
         self.letter = letter
@@ -44,7 +44,7 @@ class Letter(Hashable):
     def __str__(self) -> str:
         return f"{self.letter}"
     
-@propositions(E)
+@proposition(E)
 class Colour(Hashable):
     def __init__(self, colour) -> None:
         self.colour = colour
