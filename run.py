@@ -91,6 +91,29 @@ class Board(Hashable):
         return f"{self.rows[0]} \n {self.rows[1]} \n {self.rows[2]} \n {self.rows[3]}"
 
 
+#create all possible assignments
+    alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+    all_board_assignments = []
+
+    #assign letters and green colour to final tiles in row 
+    assigned_row1 = []
+    for index in board[3]: 
+        location = Tile(3,board[3].index(index))
+        colour = Colour('Green')
+        letter = Letter(index[1])
+        assigned_row1.append(Assigned(location,colour,letter))
+    all_board_assignments.append(assigned_row1)
+
+    #run through rest of board and assign colour to every tile in board 
+    assigned_row = []
+    for row in board: 
+        for column in row: 
+            location = Tile(3,board[row].index(column))
+            colour = Colour(row[index][0])
+            for letter in alphabet:
+                assigned_row.append(Assigned(location,colour,letter))
+        all_board_assignments.append(assigned_row)
+
 # Build an example full theory for your setting and return it.
 #
 #  There should be at least 10 variables, and a sufficiently large formula to describe it (>50 operators).
@@ -99,14 +122,8 @@ class Board(Hashable):
 
 def build_theory():
 
-    #run through board and assign colour to every tile in board 
-
-    #run through 
     #Green squares at some index must be filled by the letter at the same index as before it 
-    for row in board[::-1]: 
-        for letter in row: 
-            
-                E.add_constraint()
+
 
     # Add custom constraints by creating formulas with the variables you created. 
     # E.add_constraint((a | b) & ~x)
@@ -167,6 +184,4 @@ if __name__ == "__main__":
     #     # Literals are compiled to NNF here
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
-    board = board_gen()
-    display_board(board)
-    build_theory()
+    board = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[['Green','b'],['Green','i'],['Green', 't'],['Green', 'c'],['Green', 'h']]]
