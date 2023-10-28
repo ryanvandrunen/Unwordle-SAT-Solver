@@ -45,6 +45,22 @@ class Letter(Hashable):
         return f"{self.letter}"
     
 @proposition(E)
+class LetAssignedCol(Hashable):
+    def __init__(self, letter, colour) -> None:
+        self.letter = letter
+        self.colour = colour
+    def __str__(self) -> str:
+        return f"{self.letter} is {self.colour}"
+    
+@proposition(E)    
+class LetAssignedToTile(Hashable):
+    def __init__(self, tile, letter) -> None:
+        self.tile = tile
+        self.letter = letter
+    def __str__(self) -> str:
+        return f"{self.letter} is {self.colour}"
+    
+@proposition(E) 
 class Colour(Hashable):
     def __init__(self, colour) -> None:
         self.colour = colour
@@ -52,7 +68,6 @@ class Colour(Hashable):
     def __str__(self) -> str:
         return f"{self.colour}"
 
-    
 @proposition(E)
 class Tile(Hashable):
     def __init__(self, x_index, y_index, colour) -> None:
@@ -90,29 +105,59 @@ class Board(Hashable):
     def __str__(self) -> str:
         return f"{self.rows[0]} \n {self.rows[1]} \n {self.rows[2]} \n {self.rows[3]}"
 
+alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+all_board_assignments = []
+colours = ['green', 'white', 'yellow']
 
+@proposition(E)
+class SolutionLetter(Hashable):
+     def __init__(self, letter) -> None:
+        self.rows = letter
+board = [[['Grey',''],['Grey',''],['Yellow',''],['Grey',''],['Yellow','']],
+        [['Yellow',''],['Yellow',''],['Grey',''],['Grey',''],['Green','']],
+        [['Green',''],['Grey',''],['Grey',''],['Yellow',''],['Green','']],
+        [['Green','b'],['Green','i'],['Green', 't'],['Green', 'c'],['Green', 'h']]]
+i=0
+while i < len(board[3]): 
+    letter = board[3][i][1]
+    SolutionLetter(letter)
+    i+=1
+
+#assign every letter to every colour in every position
+letter_assignments =[]
+row = 0
+while row < len(board): 
+    column = 0
+    while column < len(board[row]): 
+        for letter in alphabet:
+            letObj = LetAssignedCol(letter,board[row][column][0])
+            letter_assignments.append(letObj)
+        column += 1
+    row +=1
+
+#Green constraint: 
+    
 #create all possible assignments
-    alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-    all_board_assignments = []
+    #all_board_assignments = []
 
     #assign letters and green colour to final tiles in row 
     assigned_row1 = []
-    for index in board[3]: 
-        location = Tile(3,board[3].index(index))
-        colour = Colour('Green')
-        letter = Letter(index[1])
-        assigned_row1.append(Assigned(location,colour,letter))
-    all_board_assignments.append(assigned_row1)
+    #for index in board[3]: 
+        #location = Tile(3,board[3].index(index))
+        #colour = Colour('Green')
+        #letter = Letter(index[1])
+        #assigned_row1.append(Assigned(location,colour,letter))
+    #all_board_assignments.append(assigned_row1)
 
     #run through rest of board and assign colour to every tile in board 
-    assigned_row = []
-    for row in board: 
-        for column in row: 
-            location = Tile(3,board[row].index(column))
-            colour = Colour(row[index][0])
-            for letter in alphabet:
-                assigned_row.append(Assigned(location,colour,letter))
-        all_board_assignments.append(assigned_row)
+    #assigned_row = []
+    #for row in board: 
+        #for column in row: 
+            #location = Tile(3,board[row].index(column))
+            #colour = Colour(row[index][0])
+            #for letter in alphabet:
+                #assigned_row.append(Assigned(location,colour,letter))
+        #all_board_assignments.append(assigned_row)
 
 # Build an example full theory for your setting and return it.
 #
@@ -123,11 +168,11 @@ class Board(Hashable):
 def build_theory():
 
     #some letter cannot be assigned to some green tile    
-    for row in board[::1]: 
-        for position in row:
-            E.add_constraint(Tile(position,row,board[row][position][0]>>letter))
-            #for every letter in the alphabet
-                #some letter cannot be assigned to green 
+    for letter in alphabet: 
+        E.add_constraint(~SolutionLetter(letter) & ~LetAssignedCol(letter,'green') & ~LetAssignedCol(letter,'yellow'))
+    
+    #
+
     # Add custom constraints by creating formulas with the variables you created. 
     # E.add_constraint((a | b) & ~x)
     # # Implication
@@ -172,14 +217,13 @@ def display_board(board):
 
 if __name__ == "__main__":
 
-    # T = build_theory()
+     T = build_theory()
     # # Don't compile until you're finished adding all your constraints!
-    # T = T.compile()
     # After compilation (and only after), you can check some of the properties
     # of your model:
     # print("\nSatisfiable: %s" % T.satisfiable())
     # print("# Solutions: %d" % count_solutions(T))
-    # print("   Solution: %s" % T.solve())
+    #print("   Solution: %s" % T.solve())
 
     # print("\nVariable likelihoods:")
     # for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
@@ -187,4 +231,7 @@ if __name__ == "__main__":
     #     # Literals are compiled to NNF here
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
-    board = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[['Green','b'],['Green','i'],['Green', 't'],['Green', 'c'],['Green', 'h']]]
+board = [[['Grey',''],['Grey',''],['Yellow',''],['Grey',''],['Yellow','']],
+             [['Yellow',''],['Yellow',''],['Grey',''],['Grey',''],['Green','']],
+             [['Green',''],['Grey',''],['Grey',''],['Yellow',''],['Green','']],
+             [['Green','b'],['Green','i'],['Green', 't'],['Green', 'c'],['Green', 'h']]]

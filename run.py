@@ -55,18 +55,18 @@ class Colour(Hashable):
     
 @proposition(E)
 class Tile(Hashable):
-    def __init__(self, x_index, y_index) -> None:
+    def __init__(self, x_index, y_index, colour) -> None:
         self.x_index = x_index
         self.y_index = y_index
+        self.colour = colour
 
     def __str__(self) -> str:
         return f"({self.x_index}, {self.y_index})"
 
 @proposition(E)
 class Assigned(Hashable):
-    def __init__(self, tile, colour, letter) -> None:
+    def __init__(self, tile, letter) -> None:
         self.tile = tile
-        self.colour = colour
         self.letter = letter
 
     def __str__(self) -> str:
@@ -91,40 +91,13 @@ class Board(Hashable):
         return f"{self.rows[0]} \n {self.rows[1]} \n {self.rows[2]} \n {self.rows[3]}"
 
 
-#create all possible assignments
-    alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-    all_board_assignments = []
-
-    #assign letters and green colour to final tiles in row 
-    assigned_row1 = []
-    for index in board[3]: 
-        location = Tile(3,board[3].index(index))
-        colour = Colour('Green')
-        letter = Letter(index[1])
-        assigned_row1.append(Assigned(location,colour,letter))
-    all_board_assignments.append(assigned_row1)
-
-    #run through rest of board and assign colour to every tile in board 
-    assigned_row = []
-    for row in board: 
-        for column in row: 
-            location = Tile(3,board[row].index(column))
-            colour = Colour(row[index][0])
-            for letter in alphabet:
-                assigned_row.append(Assigned(location,colour,letter))
-        all_board_assignments.append(assigned_row)
-
 # Build an example full theory for your setting and return it.
 #
 #  There should be at least 10 variables, and a sufficiently large formula to describe it (>50 operators).
 #  This restriction is fairly minimal, and if there is any concern, reach out to the teaching staff to clarify
 #  what the expectations are.
 
-def build_theory():
-
-    #Green squares at some index must be filled by the letter at the same index as before it 
-
-
+def build_theory(): 
     # Add custom constraints by creating formulas with the variables you created. 
     # E.add_constraint((a | b) & ~x)
     # # Implication
@@ -184,4 +157,3 @@ if __name__ == "__main__":
     #     # Literals are compiled to NNF here
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
-    board = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]],[['Green','b'],['Green','i'],['Green', 't'],['Green', 'c'],['Green', 'h']]]
