@@ -11,6 +11,7 @@ config.sat_backend = "kissat"
 
 # Encoding that will store all of your constraints
 E = Encoding()
+ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 
 
 class Hashable:
