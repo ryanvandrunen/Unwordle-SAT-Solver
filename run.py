@@ -97,11 +97,14 @@ class Board(Hashable):
 
     def __str__(self) -> str:
         return f"{self.rows[0]} \n {self.rows[1]} \n {self.rows[2]} \n {self.rows[3]}"
-    
-BOARD = [["White", "White", "White", "White", "White"],
-        ["White", "White", "White", "White", "Yellow"],
-        ["Yellow", "White", "Yellow", "Green", "White"],
-        ["Greeng", "Greenr", "Greena", "Greeni", "Greenl"]]
+
+
+BOARD = [
+    ["White", "White", "White", "White", "White"],
+    ["White", "White", "White", "White", "Yellow"],
+    ["Yellow", "White", "Yellow", "Green", "White"],
+    ["Greeng", "Greenr", "Greena", "Greeni", "Greenl"],
+]
 
 
 # Build an example full theory for your setting and return it.
@@ -123,7 +126,7 @@ def board_gen():
     for i in range(2, -1, -1):
         for j in range(5):
             # Pick random colour and create a tile with that colour
-            r = random.randint(0, len(colours)-1)
+            r = random.randint(0, len(colours) - 1)
             for a in ALPHABET:
                 possible_tiles.append(Tile(i, j, colours[r], a))
         # Add more yellows (higher chance to generate)
@@ -133,6 +136,7 @@ def board_gen():
         for l in range(i + 1):
             colours.append("White")
     return rows
+
 
 possible_tiles = []
 
@@ -148,10 +152,12 @@ def display_board(board):
     for row in board:
         print(row)
 
+
 # BOARD = board_gen()
 
-def build_theoryss(): 
-    # Add custom constraints by creating formulas with the variables you created. 
+
+def build_theoryss():
+    # Add custom constraints by creating formulas with the variables you created.
     # E.add_constraint((a | b) & ~x)
     # # Implication
     # E.add_constraint(y >> z)
@@ -160,8 +166,17 @@ def build_theoryss():
     # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
     # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
     # constraint.add_exactly_one(E, a, b, c)
-    
-    for row in BOARD;
+
+    for row in BOARD:
+        for column in row:
+            colour = BOARD[row][column]
+            for letter in ALPHABET:
+                E.add_constraint(
+                    ~(
+                        (Tile(column, 4, "Green", letter))
+                        & ((Tile(column, row, "White", letter)))
+                    )
+                )
     return E
 
 
