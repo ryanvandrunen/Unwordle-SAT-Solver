@@ -55,13 +55,14 @@ class Colour(Hashable):
     
 @proposition(E)
 class Tile(Hashable):
-    def __init__(self, x_index, y_index, colour) -> None:
+    def __init__(self, x_index, y_index, colour, letter) -> None:
         self.x_index = x_index
         self.y_index = y_index
         self.colour = colour
+        self.letter = letter
 
     def __str__(self) -> str:
-        return f"({self.colour} tile at {self.x_index}, {self.y_index})"
+        return f"({self.colour} {self.letter} at {self.x_index}, {self.y_index})"
 
 @proposition(E)
 class Assigned(Hashable):
@@ -70,7 +71,7 @@ class Assigned(Hashable):
         self.letter = letter
 
     def __str__(self) -> str:
-        return f"{self.colour} {self.letter} at {self.tile})"
+        return f"{self.letter} at {self.tile})"
 
 @proposition(E)   
 class Row(Hashable):
@@ -97,20 +98,6 @@ class Board(Hashable):
 #  This restriction is fairly minimal, and if there is any concern, reach out to the teaching staff to clarify
 #  what the expectations are.
 
-def build_theory(): 
-    # Add custom constraints by creating formulas with the variables you created. 
-    # E.add_constraint((a | b) & ~x)
-    # # Implication
-    # E.add_constraint(y >> z)
-    # # Negate a formula
-    # E.add_constraint(~(x & y))
-    # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
-    # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
-    # constraint.add_exactly_one(E, a, b, c)
-
-
-    return E
-
 def board_gen():
     # Pick random word from word bank
     word = WORDS[random.randint(0, 3835)]
@@ -120,13 +107,13 @@ def board_gen():
     colours = ['Green', 'Yellow', 'White']
     # Fill bottom row with green tiles and letters of the random word
     for i in range(5):
-        rows[3][i] = Tile(3, i, "Green")
+        rows[3][i] = Tile(3, i, "Green", word[i])
     # Iterate through rows and elements
     for i in range(2, -1, -1):
         for j in range(5):
             # Pick random colour and create a tile with that colour
             r = random.randint(0, len(colours)-1)
-            rows[i][j] = Tile(i, j, colours[r])
+            rows[i][j] = Tile(i, j, colours[r], None)
         # Add more yellows (higher chance to generate)
         for k in range(i):
             colours.append('Yellow')
@@ -138,7 +125,29 @@ def board_gen():
 def display_board(board):
     for row in board:
         print(row)
-        
+
+BOARD = board_gen()
+
+def build_theory(): 
+    # Add custom constraints by creating formulas with the variables you created. 
+    # E.add_constraint((a | b) & ~x)
+    # # Implication
+    # E.add_constraint(y >> z)
+    # # Negate a formula
+    # E.add_constraint(~(x & y))
+    # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
+    # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
+    # constraint.add_exactly_one(E, a, b, c)
+    for a in ALPHABET:
+        for r in BOARD:
+            for t in r:
+                if (t.x_index != 3):
+                    t.letters = ALPHABET
+
+
+
+    return E
+
 
 
 if __name__ == "__main__":
@@ -158,5 +167,4 @@ if __name__ == "__main__":
     #     # Literals are compiled to NNF here
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
-    board = board_gen()
-    display_board(board)
+    display_board(BOARD)
