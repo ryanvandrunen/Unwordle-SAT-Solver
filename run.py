@@ -61,7 +61,7 @@ class Tile(Hashable):
         self.colour = colour
 
     def __str__(self) -> str:
-        return f"({self.x_index}, {self.y_index})"
+        return f"({self.colour} tile at {self.x_index}, {self.y_index})"
 
 @proposition(E)
 class Assigned(Hashable):
@@ -120,13 +120,13 @@ def board_gen():
     colours = ['Green', 'Yellow', 'White']
     # Fill bottom row with green tiles and letters of the random word
     for i in range(5):
-        rows[3][i] = Tile(3, i)
+        rows[3][i] = Tile(3, i, "Green")
     # Iterate through rows and elements
     for i in range(2, -1, -1):
         for j in range(5):
             # Pick random colour and create a tile with that colour
             r = random.randint(0, len(colours)-1)
-            rows[i][j] = Tile(i, j)
+            rows[i][j] = Tile(i, j, colours[r])
         # Add more yellows (higher chance to generate)
         for k in range(i):
             colours.append('Yellow')
@@ -137,7 +137,8 @@ def board_gen():
 
 def display_board(board):
     for row in board:
-        print(f"({row[0].colour},{row[0].letters}) ({row[1].colour},{row[1].letters}) ({row[2].colour},{row[2].letters}) ({row[3].colour},{row[3].letters}) ({row[4].colour},{row[4].letters})")
+        print(row)
+        
 
 
 if __name__ == "__main__":
@@ -157,3 +158,5 @@ if __name__ == "__main__":
     #     # Literals are compiled to NNF here
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
+    board = board_gen()
+    display_board(board)
