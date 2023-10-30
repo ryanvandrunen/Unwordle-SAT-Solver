@@ -174,7 +174,7 @@ def build_theoryss():
             for letter in ALPHABET:
                 E.add_constraint(
                     ~(
-                        (Tile(column, 4, "Green", letter))
+                        (Tile(column, 3, "Green", letter))
                         & ((Tile(column, row, "White", letter)))
                     )
                 )
@@ -186,11 +186,22 @@ def build_theoryss():
             for letter in ALPHABET:
                 E.add_constraint(
                     ~(
-                        (Tile(column, 4, "Green", letter))
+                        (Tile(column, 3, "Green", letter))
                         & ((Tile(column, row, "Yellow", letter)))
                     )
                 )
 
+    # green letter cannot also be yellow in same column
+    for row in BOARD:
+        for column in row:
+            colour = BOARD[row][column]
+            for letter in ALPHABET:
+                E.add_constraint(
+                    ~(
+                        (Tile(column, 3, "Green", letter))
+                        & ((Tile(column, row, "Yellow", letter)))
+                    )
+                )
     return E
 
 
