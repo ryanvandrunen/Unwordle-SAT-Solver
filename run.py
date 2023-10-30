@@ -31,32 +31,6 @@ class Hashable:
 # that are instances of this class must be true by using a @constraint decorator.
 # other options include: at most one, exactly one, at most k, and implies all.
 # For a complete module reference, see https://bauhaus.readthedocs.io/en/latest/bauhaus.html
-@constraint.at_least_one(E)
-@proposition(E)
-class FancyPropositions:
-    def __init__(self, data):
-        self.data = data
-
-    def __repr__(self):
-        return f"A.{self.data}"
-
-
-@proposition(E)
-class Letter(Hashable):
-    def __init__(self, letter) -> None:
-        self.letter = letter
-
-    def __str__(self) -> str:
-        return f"{self.letter}"
-
-
-@proposition(E)
-class Colour(Hashable):
-    def __init__(self, colour) -> None:
-        self.colour = colour
-
-    def __str__(self) -> str:
-        return f"{self.colour}"
 
 
 @proposition(E)
@@ -69,16 +43,6 @@ class Tile(Hashable):
 
     def __str__(self) -> str:
         return f"({self.colour} {self.letter} at {self.x_index}, {self.y_index})"
-
-
-@proposition(E)
-class Assigned(Hashable):
-    def __init__(self, tile, letter) -> None:
-        self.tile = tile
-        self.letter = letter
-
-    def __str__(self) -> str:
-        return f"{self.letter} at {self.tile})"
 
 
 @proposition(E)
