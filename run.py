@@ -104,21 +104,6 @@ class Board(Hashable):
 #  This restriction is fairly minimal, and if there is any concern, reach out to the teaching staff to clarify
 #  what the expectations are.
 
-
-def build_theory(): 
-    # Add custom constraints by creating formulas with the variables you created. 
-    # E.add_constraint((a | b) & ~x)
-    # # Implication
-    # E.add_constraint(y >> z)
-    # # Negate a formula
-    # E.add_constraint(~(x & y))
-    # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
-    # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
-    # constraint.add_exactly_one(E, a, b, c)
-
-
-    return E
-
 def board_gen():
     # Pick random word from word bank
     word = WORDS[random.randint(0, 3835)]
@@ -134,7 +119,7 @@ def board_gen():
         for j in range(5):
             # Pick random colour and create a tile with that colour
             r = random.randint(0, len(colours)-1)
-            rows[i][j] = Tile(i, j, colours[r])
+            rows[i][j] = Tile(i, j, colours[r], None)
         # Add more yellows (higher chance to generate)
         for k in range(i):
             colours.append("Yellow")
@@ -147,7 +132,28 @@ def board_gen():
 def display_board(board):
     for row in board:
         print(row)
-        
+
+BOARD = board_gen()
+
+def build_theory(): 
+    # Add custom constraints by creating formulas with the variables you created. 
+    # E.add_constraint((a | b) & ~x)
+    # # Implication
+    # E.add_constraint(y >> z)
+    # # Negate a formula
+    # E.add_constraint(~(x & y))
+    # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
+    # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
+    # constraint.add_exactly_one(E, a, b, c)
+    for a in ALPHABET:
+        for r in BOARD:
+            for t in r:
+                if (t.x_index != 3):
+                    t.letter = ALPHABET
+
+
+
+    return E
 
 
 if __name__ == "__main__":
@@ -166,5 +172,4 @@ if __name__ == "__main__":
     #     # Literals are compiled to NNF here
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
-    board = board_gen()
-    display_board(board)
+    display_board(BOARD)
