@@ -168,8 +168,10 @@ def build_theory():
     # constraint.add_exactly_one(E, a, b, c)
 
     # white letters cannot be part of key word
-    for row in BOARD:
-        for column in row:
+    row = 0
+    column = 0
+    while row < len(BOARD):
+        while column < len(BOARD[row]):
             for letter in ALPHABET:
                 E.add_constraint(
                     ~(
@@ -177,6 +179,8 @@ def build_theory():
                         & ((Tile(row, column, "White", letter)))
                     )
                 )
+            column += 1
+        row += 1
 
     # green letter cannot also be yellow in same column
     for row in BOARD:
@@ -190,6 +194,7 @@ def build_theory():
                 )
 
     # green letter in some column is always green REDUNDANT W CONSTRAINT 2 BUT WE MOVE
+
     for row in BOARD:
         for column in row:
             for letter in ALPHABET:
@@ -210,7 +215,7 @@ def build_theory():
                         for letter_5 in ALPHABET:
                             E.add_constraint(
                                 (
-                                    (Tile(row, 0, BOARD[row][0], letter_1))
+                                    (Tile(row, 0, BOARD[row_num][0], letter_1))
                                     & ((Tile(row, 1, BOARD[row_num][1], letter_2)))
                                     & ((Tile(row, 2, BOARD[row_num][2], letter_3)))
                                     & ((Tile(row, 3, BOARD[row_num][3], letter_4)))
