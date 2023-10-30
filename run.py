@@ -146,9 +146,9 @@ def build_theory():
         while column < len(BOARD[row]):
             for letter in ALPHABET:
                 E.add_constraint(
-                    ~(
-                        (Tile(3, column, "Green", letter))
-                        & ((Tile(row, column, "White", letter)))
+                    (
+                        ~(Tile(3, column, "Green", letter))
+                        | ~((Tile(row, column, "White", letter)))
                     )
                 )
             column += 1
@@ -161,9 +161,9 @@ def build_theory():
         while column < len(BOARD[row]):
             for letter in ALPHABET:
                 E.add_constraint(
-                    ~(
-                        (Tile(3, column, "Green", letter))
-                        & ((Tile(row, column, "Yellow", letter)))
+                    (
+                        ~(Tile(3, column, "Green", letter))
+                        | ~((Tile(row, column, "Yellow", letter)))
                     )
                 )
             column += 1
