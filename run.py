@@ -82,13 +82,9 @@ class Assigned(Hashable):
 
 @proposition(E)
 class Row(Hashable):
-    def __init__(self, row_number, letterZero, letterOne, letterTwo, letterThree, letterFour) -> None:
+    def __init__(self, row_number, letters) -> None:
         self.row_number = row_number
-        self.letterZero = letterZero
-        self.letterOne = letterOne
-        self.letterTwo = letterTwo
-        self.letterThree = letterThree
-        self.letterFour = letterFour
+        self.letters = letters
 
     def __str__(self) -> str:
         return f"Row {self.row_number} contains {self.letters}"
@@ -150,17 +146,6 @@ for a in ALPHABET:
     for i in range(3):
         for j in range(5):
             possible_tiles.append(Tile(i, j, BOARD[i][j], a))
-
-possible_rowsZero = []
-for i in range(4):
-    for j in range(5):
-        for tile in possible_tiles:
-            pass
-
-possible_rowsOne = []
-possible_rowsTwo = []
-            
-
 
 
 def display_board(board):
@@ -226,19 +211,19 @@ def build_theory():
                             E.add_constraint(
                                 (
                                     (Tile(row, 0, BOARD[row][0], letter_1))
-                                    & ((Tile(row, 1, BOARD[row][1], letter_2)))
-                                    & ((Tile(row, 2, BOARD[row][2], letter_3)))
-                                    & ((Tile(row, 3, BOARD[row][3], letter_3)))
-                                    & ((Tile(row, 4, BOARD[row][4], letter_3)))
+                                    & ((Tile(row, 1, BOARD[row_num][1], letter_2)))
+                                    & ((Tile(row, 2, BOARD[row_num][2], letter_3)))
+                                    & ((Tile(row, 3, BOARD[row_num][3], letter_4)))
+                                    & ((Tile(row, 4, BOARD[row_num][4], letter_5)))
                                 )
                                 >> (
                                     Row(
                                         row_num,
-                                        (Tile(row, 0, BOARD[row][0], letter_1)),
-                                        ((Tile(row, 1, BOARD[row][1], letter_2))),
-                                        ((Tile(row, 2, BOARD[row][2], letter_3))),
-                                        ((Tile(row, 3, BOARD[row][3], letter_3))),
-                                        ((Tile(row, 4, BOARD[row][4], letter_3))),
+                                        (Tile(row, 0, BOARD[row_num][0], letter_1)),
+                                        ((Tile(row, 1, BOARD[row_num][1], letter_2))),
+                                        ((Tile(row, 2, BOARD[row_num][2], letter_3))),
+                                        ((Tile(row, 3, BOARD[row_num][3], letter_4))),
+                                        ((Tile(row, 4, BOARD[row_num][4], letter_5))),
                                     )
                                 )
                             )
