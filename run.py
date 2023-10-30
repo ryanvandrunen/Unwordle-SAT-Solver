@@ -167,6 +167,7 @@ def build_theoryss():
     # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
     # constraint.add_exactly_one(E, a, b, c)
 
+    # white letters cannot be part of key word
     for row in BOARD:
         for column in row:
             colour = BOARD[row][column]
@@ -177,6 +178,19 @@ def build_theoryss():
                         & ((Tile(column, row, "White", letter)))
                     )
                 )
+
+    # green letter cannot also be yellow in same column
+    for row in BOARD:
+        for column in row:
+            colour = BOARD[row][column]
+            for letter in ALPHABET:
+                E.add_constraint(
+                    ~(
+                        (Tile(column, 4, "Green", letter))
+                        & ((Tile(column, row, "Yellow", letter)))
+                    )
+                )
+
     return E
 
 
