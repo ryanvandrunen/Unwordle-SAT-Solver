@@ -195,7 +195,7 @@ def build_theory():
             for letter in ALPHABET:
                 E.add_constraint(
                     (
-                        (Tile(4, column, "Green", letter))
+                        (Tile(3, column, "Green", letter))
                         & ((Tile(row, column, "Green", letter)))
                     )
                 )
