@@ -82,13 +82,9 @@ class Assigned(Hashable):
 
 @proposition(E)
 class Row(Hashable):
-    def __init__(self, row_number, letterZero, letterOne, letterTwo, letterThree, letterFour) -> None:
+    def __init__(self, row_number, letters) -> None:
         self.row_number = row_number
-        self.letterZero = letterZero
-        self.letterOne = letterOne
-        self.letterTwo = letterTwo
-        self.letterThree = letterThree
-        self.letterFour = letterFour
+        self.letters = letters
 
     def __str__(self) -> str:
         return f"Row {self.row_number} contains {self.letters}"
@@ -206,18 +202,18 @@ def build_theory():
 
     # 5 true letters = valid row
     for row in BOARD:
-        for column in row:
-            for letter in ALPHABET:
-                E.add_constraint(
-                    (
-                        (Tile(3, column, "Green", letter))
-                        & ((Tile(row, column, "Green", letter)))
-                    )
+        for letter in ALPHABET:
+            E.add_constraint(
+                (
+                    (Tile(3, column, "Green", letter))
+                    & ((Tile(row, column, "Green", letter)))
                 )
+            )
 
     # valid row cannot have duplicates
 
     # valid row must also be word
+
     return E
 
 
