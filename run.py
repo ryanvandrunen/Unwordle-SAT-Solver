@@ -150,7 +150,7 @@ def display_board(board):
 
 # BOARD = board_gen()
 
-def build_theory(): 
+def build_theoryss(): 
     # Add custom constraints by creating formulas with the variables you created. 
     # E.add_constraint((a | b) & ~x)
     # # Implication
@@ -161,7 +161,7 @@ def build_theory():
     # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
     # constraint.add_exactly_one(E, a, b, c)
     
-                    
+    %%%%%%%helloooooo
     return E
 
 
