@@ -155,8 +155,9 @@ def display_board(board):
 
 # BOARD = board_gen()
 
-def build_theory(): 
-    # Add custom constraints by creating formulas with the variables you created. 
+
+def build_theory():
+    # Add custom constraints by creating formulas with the variables you created.
     # E.add_constraint((a | b) & ~x)
     # # Implication
     # E.add_constraint(y >> z)
@@ -169,11 +170,10 @@ def build_theory():
     # white letters cannot be part of key word
     for row in BOARD:
         for column in row:
-            colour = BOARD[row][column]
             for letter in ALPHABET:
                 E.add_constraint(
                     ~(
-                        (Tile(3, column, "Green", letter))
+                        (Tile(column, 3, "Green", letter))
                         & ((Tile(column, row, "White", letter)))
                     )
                 )
@@ -181,24 +181,22 @@ def build_theory():
     # green letter cannot also be yellow in same column
     for row in BOARD:
         for column in row:
-            colour = BOARD[row][column]
-            for letter in ALPHABET:
-                E.add_constraint(
-                    ~(
-                        (Tile(3, column, "Green", letter))
-                        & ((Tile(column, row, "Yellow", letter)))
-                    )
-                )
-
-    # green letter cannot also be yellow in same column
-    for row in BOARD:
-        for column in row:
-            colour = BOARD[row][column]
             for letter in ALPHABET:
                 E.add_constraint(
                     ~(
                         (Tile(column, 3, "Green", letter))
                         & ((Tile(column, row, "Yellow", letter)))
+                    )
+                )
+
+    # green letter in some column is always green REDUNDANT W CONSTRAINT 2 BUT WE MOVE
+    for row in BOARD:
+        for column in row:
+            for letter in ALPHABET:
+                E.add_constraint(
+                    (
+                        (Tile(column, 4, "Green", letter))
+                        & ((Tile(column, row, "Green", letter)))
                     )
                 )
     return E
