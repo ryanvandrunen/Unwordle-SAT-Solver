@@ -82,9 +82,13 @@ class Assigned(Hashable):
 
 @proposition(E)
 class Row(Hashable):
-    def __init__(self, row_number, letters) -> None:
+    def __init__(self, row_number, letterZero, letterOne, letterTwo, letterThree, letterFour) -> None:
         self.row_number = row_number
-        self.letters = letters
+        self.letterZero = letterZero
+        self.letterOne = letterOne
+        self.letterTwo = letterTwo
+        self.letterThree = letterThree
+        self.letterFour = letterFour
 
     def __str__(self) -> str:
         return f"Row {self.row_number} contains {self.letters}"
