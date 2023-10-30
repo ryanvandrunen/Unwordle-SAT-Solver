@@ -97,6 +97,11 @@ class Board(Hashable):
 
     def __str__(self) -> str:
         return f"{self.rows[0]} \n {self.rows[1]} \n {self.rows[2]} \n {self.rows[3]}"
+    
+BOARD = [["White", "White", "White", "White", "White"],
+        ["White", "White", "White", "White", "Yellow"],
+        ["Yellow", "White", "Yellow", "Green", "White"],
+        ["Greeng", "Greenr", "Greena", "Greeni", "Greenl"]]
 
 
 # Build an example full theory for your setting and return it.
@@ -104,7 +109,6 @@ class Board(Hashable):
 #  There should be at least 10 variables, and a sufficiently large formula to describe it (>50 operators).
 #  This restriction is fairly minimal, and if there is any concern, reach out to the teaching staff to clarify
 #  what the expectations are.
-
 def board_gen():
     # Pick random word from word bank
     word = WORDS[random.randint(0, 3835)]
@@ -120,7 +124,8 @@ def board_gen():
         for j in range(5):
             # Pick random colour and create a tile with that colour
             r = random.randint(0, len(colours)-1)
-            rows[i][j] = Tile(i, j, colours[r], None)
+            for a in ALPHABET:
+                possible_tiles.append(Tile(i, j, colours[r], a))
         # Add more yellows (higher chance to generate)
         for k in range(i):
             colours.append("Yellow")
@@ -129,12 +134,21 @@ def board_gen():
             colours.append("White")
     return rows
 
+possible_tiles = []
+
+for i in range(5):
+    possible_tiles.append(Tile(3, i, BOARD[3][i][:-1], BOARD[3][i][-1:]))
+for a in ALPHABET:
+    for i in range(3):
+        for j in range(5):
+            possible_tiles.append(Tile(i, j, BOARD[i][j], a))
+
 
 def display_board(board):
     for row in board:
         print(row)
 
-BOARD = board_gen()
+# BOARD = board_gen()
 
 def build_theory(): 
     # Add custom constraints by creating formulas with the variables you created. 
@@ -146,14 +160,8 @@ def build_theory():
     # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
     # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
     # constraint.add_exactly_one(E, a, b, c)
-    for a in ALPHABET:
-        for r in BOARD:
-            for t in r:
-                if (t.x_index != 3):
-                    t.letter = ALPHABET
-
-
-
+    
+                    
     return E
 
 
@@ -174,3 +182,4 @@ if __name__ == "__main__":
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
     display_board(BOARD)
+    print(len(possible_tiles))
