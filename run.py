@@ -150,7 +150,7 @@ def display_board(board):
 
 # BOARD = board_gen()
 
-def build_theoryss(): 
+def build_theory(): 
     # Add custom constraints by creating formulas with the variables you created. 
     # E.add_constraint((a | b) & ~x)
     # # Implication
