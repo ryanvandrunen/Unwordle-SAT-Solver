@@ -147,6 +147,17 @@ for a in ALPHABET:
         for j in range(5):
             possible_tiles.append(Tile(i, j, BOARD[i][j], a))
 
+possible_rowsZero = []
+for i in range(4):
+    for j in range(5):
+        for tile in possible_tiles:
+            pass
+
+possible_rowsOne = []
+possible_rowsTwo = []
+            
+
+
 
 def display_board(board):
     for row in board:
