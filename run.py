@@ -82,7 +82,9 @@ class Assigned(Hashable):
 
 @proposition(E)
 class Row(Hashable):
-    def __init__(self, row_number, letterZero, letterOne, letterTwo, letterThree, letterFour) -> None:
+    def __init__(
+        self, row_number, letterZero, letterOne, letterTwo, letterThree, letterFour
+    ) -> None:
         self.row_number = row_number
         self.letterZero = letterZero
         self.letterOne = letterOne
@@ -187,8 +189,10 @@ def build_theory():
         row += 1
 
     # green letter cannot also be yellow in same column
-    for row in BOARD:
-        for column in row:
+    row = 0
+    column = 0
+    while row < len(BOARD):
+        while column < len(BOARD[row]):
             for letter in ALPHABET:
                 E.add_constraint(
                     ~(
@@ -196,11 +200,14 @@ def build_theory():
                         & ((Tile(row, column, "Yellow", letter)))
                     )
                 )
+            column += 1
+        row += 1
 
     # green letter in some column is always green REDUNDANT W CONSTRAINT 2 BUT WE MOVE
-
-    for row in BOARD:
-        for column in row:
+    row = 0
+    column = 0
+    while row < len(BOARD):
+        while column < len(BOARD[row]):
             for letter in ALPHABET:
                 E.add_constraint(
                     (
@@ -208,6 +215,8 @@ def build_theory():
                         & ((Tile(row, column, "Green", letter)))
                     )
                 )
+            column += 1
+        row += 1
 
     # 5 true letters = valid row
     row_num = 0
@@ -219,20 +228,56 @@ def build_theory():
                         for letter_5 in ALPHABET:
                             E.add_constraint(
                                 (
-                                    (Tile(row, 0, BOARD[row_num][0], letter_1))
-                                    & ((Tile(row, 1, BOARD[row_num][1], letter_2)))
-                                    & ((Tile(row, 2, BOARD[row_num][2], letter_3)))
-                                    & ((Tile(row, 3, BOARD[row_num][3], letter_4)))
-                                    & ((Tile(row, 4, BOARD[row_num][4], letter_5)))
+                                    (Tile(row_num, 0, BOARD[row_num][0], letter_1))
+                                    & ((Tile(row_num, 1, BOARD[row_num][1], letter_2)))
+                                    & ((Tile(row_num, 2, BOARD[row_num][2], letter_3)))
+                                    & ((Tile(row_num, 3, BOARD[row_num][3], letter_4)))
+                                    & ((Tile(row_num, 4, BOARD[row_num][4], letter_5)))
                                 )
                                 >> (
                                     Row(
                                         row_num,
-                                        (Tile(row, 0, BOARD[row_num][0], letter_1)),
-                                        ((Tile(row, 1, BOARD[row_num][1], letter_2))),
-                                        ((Tile(row, 2, BOARD[row_num][2], letter_3))),
-                                        ((Tile(row, 3, BOARD[row_num][3], letter_4))),
-                                        ((Tile(row, 4, BOARD[row_num][4], letter_5))),
+                                        (Tile(row_num, 0, BOARD[row_num][0], letter_1)),
+                                        (
+                                            (
+                                                Tile(
+                                                    row_num,
+                                                    1,
+                                                    BOARD[row_num][1],
+                                                    letter_2,
+                                                )
+                                            )
+                                        ),
+                                        (
+                                            (
+                                                Tile(
+                                                    row_num,
+                                                    2,
+                                                    BOARD[row_num][2],
+                                                    letter_3,
+                                                )
+                                            )
+                                        ),
+                                        (
+                                            (
+                                                Tile(
+                                                    row_num,
+                                                    3,
+                                                    BOARD[row_num][3],
+                                                    letter_4,
+                                                )
+                                            )
+                                        ),
+                                        (
+                                            (
+                                                Tile(
+                                                    row_num,
+                                                    4,
+                                                    BOARD[row_num][4],
+                                                    letter_5,
+                                                )
+                                            )
+                                        ),
                                     )
                                 )
                             )
