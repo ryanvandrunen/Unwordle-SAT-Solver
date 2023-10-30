@@ -161,7 +161,7 @@ def build_theoryss():
     # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
     # constraint.add_exactly_one(E, a, b, c)
     
-    %%%%%%%helloooooo
+    for row in BOARD;
     return E
 
 
