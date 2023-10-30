@@ -65,7 +65,7 @@ class Tile(Hashable):
         self.colour = colour
 
     def __str__(self) -> str:
-        return f"({self.x_index}, {self.y_index})"
+        return f"({self.colour} tile at {self.x_index}, {self.y_index})"
 
 
 @proposition(E)
@@ -127,7 +127,7 @@ def board_gen():
     colours = ["Green", "Yellow", "White"]
     # Fill bottom row with green tiles and letters of the random word
     for i in range(5):
-        rows[3][i] = Tile(3, i)
+        rows[3][i] = Tile(3, i, "Green")
     # Iterate through rows and elements
     for i in range(2, -1, -1):
         for j in range(5):
@@ -165,3 +165,4 @@ if __name__ == "__main__":
     #     # Ensure that you only send these functions NNF formulas
     #     # Literals are compiled to NNF here
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
+    # print()
