@@ -173,7 +173,7 @@ def build_theory():
             for letter in ALPHABET:
                 E.add_constraint(
                     ~(
-                        (Tile(column, 3, "Green", letter))
+                        (Tile(3, column, "Green", letter))
                         & ((Tile(column, row, "White", letter)))
                     )
                 )
@@ -185,7 +185,7 @@ def build_theory():
             for letter in ALPHABET:
                 E.add_constraint(
                     ~(
-                        (Tile(column, 3, "Green", letter))
+                        (Tile(3, column, "Green", letter))
                         & ((Tile(column, row, "Yellow", letter)))
                     )
                 )
