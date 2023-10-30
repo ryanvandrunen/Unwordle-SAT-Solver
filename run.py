@@ -212,18 +212,39 @@ def build_theory():
                 )
 
     # 5 true letters = valid row
+    row_num = 0
     for row in BOARD:
-        for letter in ALPHABET:
-            E.add_constraint(
-                (
-                    (Tile(3, column, "Green", letter))
-                    & ((Tile(row, column, "Green", letter)))
-                )
-            )
+        for letter_1 in ALPHABET:
+            for letter_2 in ALPHABET:
+                for letter_3 in ALPHABET:
+                    for letter_4 in ALPHABET:
+                        for letter_5 in ALPHABET:
+                            E.add_constraint(
+                                (
+                                    (Tile(row, 0, BOARD[row][0], letter_1))
+                                    & ((Tile(row, 1, BOARD[row][1], letter_2)))
+                                    & ((Tile(row, 2, BOARD[row][2], letter_3)))
+                                    & ((Tile(row, 3, BOARD[row][3], letter_3)))
+                                    & ((Tile(row, 4, BOARD[row][4], letter_3)))
+                                )
+                                >> (
+                                    Row(
+                                        row_num,
+                                        (Tile(row, 0, BOARD[row][0], letter_1)),
+                                        ((Tile(row, 1, BOARD[row][1], letter_2))),
+                                        ((Tile(row, 2, BOARD[row][2], letter_3))),
+                                        ((Tile(row, 3, BOARD[row][3], letter_3))),
+                                        ((Tile(row, 4, BOARD[row][4], letter_3))),
+                                    )
+                                )
+                            )
+        row_num += 1
 
     # valid row cannot have duplicates
 
     # valid row must also be word
+
+    # 4 valid rows = SOLUTION YAYAYAYAYYYYYY
 
     return E
 
