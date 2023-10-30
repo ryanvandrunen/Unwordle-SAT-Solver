@@ -118,30 +118,30 @@ BOARD = [
 #  There should be at least 10 variables, and a sufficiently large formula to describe it (>50 operators).
 #  This restriction is fairly minimal, and if there is any concern, reach out to the teaching staff to clarify
 #  what the expectations are.
-def board_gen():
-    # Pick random word from word bank
-    word = WORDS[random.randint(0, 3835)]
-    # Generate rows
-    rows = 5 * [None], 5 * [None], 5 * [None], 5 * [None]
-    # Initialize possible colours
-    colours = ["Green", "Yellow", "White"]
-    # Fill bottom row with green tiles and letters of the random word
-    for i in range(5):
-        rows[3][i] = Tile(3, i, "Green", word[i])
-    # Iterate through rows and elements
-    for i in range(2, -1, -1):
-        for j in range(5):
-            # Pick random colour and create a tile with that colour
-            r = random.randint(0, len(colours) - 1)
-            for a in ALPHABET:
-                possible_tiles.append(Tile(i, j, colours[r], a))
-        # Add more yellows (higher chance to generate)
-        for k in range(i):
-            colours.append("Yellow")
-        # Add more whites (higher chance to generate)
-        for l in range(i + 1):
-            colours.append("White")
-    return rows
+# def board_gen():
+#     # Pick random word from word bank
+#     word = WORDS[random.randint(0, 3835)]
+#     # Generate rows
+#     rows = 5 * [None], 5 * [None], 5 * [None], 5 * [None]
+#     # Initialize possible colours
+#     colours = ["Green", "Yellow", "White"]
+#     # Fill bottom row with green tiles and letters of the random word
+#     for i in range(5):
+#         rows[3][i] = Tile(3, i, "Green", word[i])
+#     # Iterate through rows and elements
+#     for i in range(2, -1, -1):
+#         for j in range(5):
+#             # Pick random colour and create a tile with that colour
+#             r = random.randint(0, len(colours) - 1)
+#             for a in ALPHABET:
+#                 possible_tiles.append(Tile(i, j, colours[r], a))
+#         # Add more yellows (higher chance to generate)
+#         for k in range(i):
+#             colours.append("Yellow")
+#         # Add more whites (higher chance to generate)
+#         for l in range(i + 1):
+#             colours.append("White")
+#     return rows
 
 
 possible_tiles = []
@@ -295,12 +295,12 @@ def build_theory():
 if __name__ == "__main__":
     T = build_theory()
     # # Don't compile until you're finished adding all your constraints!
-    # T = T.compile()
+    T = T.compile()
     # After compilation (and only after), you can check some of the properties
     # of your model:
-    # print("\nSatisfiable: %s" % T.satisfiable())
-    # print("# Solutions: %d" % count_solutions(T))
-    # print("   Solution: %s" % T.solve())
+    print("\nSatisfiable: %s" % T.satisfiable())
+    print("# Solutions: %d" % count_solutions(T))
+    print("   Solution: %s" % T.solve())
 
     # print("\nVariable likelihoods:")
     # for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
