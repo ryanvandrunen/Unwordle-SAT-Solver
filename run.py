@@ -186,32 +186,31 @@ def build_theory():
 
     # 5 true letters = valid row
     row_num = 0
-    for row in BOARD:
-        for letter_1 in ALPHABET:
-            for letter_2 in ALPHABET:
-                for letter_3 in ALPHABET:
-                    for letter_4 in ALPHABET:
-                        for letter_5 in ALPHABET:
-                            E.add_constraint(
-                                (
-                                    (Tile(row_num, 0, BOARD[row_num][0], letter_1))
-                                    & ((Tile(row_num, 1, BOARD[row_num][1], letter_2)))
-                                    & ((Tile(row_num, 2, BOARD[row_num][2], letter_3)))
-                                    & ((Tile(row_num, 3, BOARD[row_num][3], letter_4)))
-                                    & ((Tile(row_num, 4, BOARD[row_num][4], letter_5)))
-                                )
-                                >> (
-                                    Row(
-                                        row_num,
-                                        (Tile(row_num, 0, BOARD[row_num][0], letter_1)),
-                                        (Tile(row_num, 1, BOARD[row_num][1], letter_2)),
-                                        (Tile(row_num, 2, BOARD[row_num][2], letter_3)),
-                                        (Tile(row_num, 3, BOARD[row_num][3], letter_4)),
-                                        (Tile(row_num, 4, BOARD[row_num][4], letter_5)),
-                                    )
+    for letter_1 in ALPHABET:
+        for letter_2 in ALPHABET:
+            for letter_3 in ALPHABET:
+                for letter_4 in ALPHABET:
+                    for letter_5 in ALPHABET:
+                        E.add_constraint(
+                            (
+                                (Tile(row_num, 0, BOARD[row_num][0], letter_1))
+                                & ((Tile(row_num, 1, BOARD[row_num][1], letter_2)))
+                                & ((Tile(row_num, 2, BOARD[row_num][2], letter_3)))
+                                & ((Tile(row_num, 3, BOARD[row_num][3], letter_4)))
+                                & ((Tile(row_num, 4, BOARD[row_num][4], letter_5)))
+                            )
+                            >> (
+                                Row(
+                                    row_num,
+                                    (Tile(row_num, 0, BOARD[row_num][0], letter_1)),
+                                    (Tile(row_num, 1, BOARD[row_num][1], letter_2)),
+                                    (Tile(row_num, 2, BOARD[row_num][2], letter_3)),
+                                    (Tile(row_num, 3, BOARD[row_num][3], letter_4)),
+                                    (Tile(row_num, 4, BOARD[row_num][4], letter_5)),
                                 )
                             )
-        row_num += 1
+                        )
+    row_num += 1
 
     # valid row cannot have duplicates
 
