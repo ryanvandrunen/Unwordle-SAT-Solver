@@ -82,9 +82,13 @@ class Assigned(Hashable):
 
 @proposition(E)
 class Row(Hashable):
-    def __init__(self, row_number, letters) -> None:
+    def __init__(self, row_number, letterZero, letterOne, letterTwo, letterThree, letterFour) -> None:
         self.row_number = row_number
-        self.letters = letters
+        self.letterZero = letterZero
+        self.letterOne = letterOne
+        self.letterTwo = letterTwo
+        self.letterThree = letterThree
+        self.letterFour = letterFour
 
     def __str__(self) -> str:
         return f"Row {self.row_number} contains {self.letters}"
@@ -210,7 +214,7 @@ def build_theory():
                         for letter_5 in ALPHABET:
                             E.add_constraint(
                                 (
-                                    (Tile(row, 0, BOARD[row][0], letter_1))
+                                    (Tile(row, 0, BOARD[row_num][0], letter_1))
                                     & ((Tile(row, 1, BOARD[row_num][1], letter_2)))
                                     & ((Tile(row, 2, BOARD[row_num][2], letter_3)))
                                     & ((Tile(row, 3, BOARD[row_num][3], letter_4)))
