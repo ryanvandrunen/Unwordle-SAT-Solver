@@ -199,6 +199,21 @@ def build_theory():
                         & ((Tile(row, column, "Green", letter)))
                     )
                 )
+
+    # 5 true letters = valid row
+    for row in BOARD:
+        for column in row:
+            for letter in ALPHABET:
+                E.add_constraint(
+                    (
+                        (Tile(3, column, "Green", letter))
+                        & ((Tile(row, column, "Green", letter)))
+                    )
+                )
+
+    # valid row cannot have duplicates
+
+    # valid row must also be word
     return E
 
 
