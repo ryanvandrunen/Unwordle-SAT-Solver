@@ -63,11 +63,13 @@ class Row(Hashable):
 
 @proposition(E)
 class Board(Hashable):
-    def __init__(self, rows) -> None:
-        self.rows = rows
+    def __init__(self, row1, row2, row3) -> None:
+        self.row1 = row1
+        self.row2 = row2
+        self.row3 = row3
 
     def __str__(self) -> str:
-        return f"{self.rows[0]} \n {self.rows[1]} \n {self.rows[2]} \n {self.rows[3]}"
+        return f"{self.row1} \n {self.row2} \n {self.row3} \n"
 
 
 BOARD = [
@@ -140,8 +142,11 @@ def build_theory():
     # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
     # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
     # constraint.add_exactly_one(E, a, b, c)
-
-    # white letters cannot be part of key word
+    i = 0 
+    while i < len(BOARD[3]): 
+        Tile(3,i,"Green", BOARD[3][i][-1:])
+        i += 1
+    # white  cannot be part of key word
     row = 2
     column = 0
     while row > -1:
@@ -149,8 +154,8 @@ def build_theory():
             for letter in ALPHABET:
                 E.add_constraint(
                     (
-                        ~(Tile(3, column, "Green", letter))
-                        | ~((Tile(row, column, "White", letter)))
+                        (Tile(3, column, "Green", letter))
+                        | ((Tile(row, column, "White", letter)))
                     )
                 )
             column += 1
@@ -186,6 +191,7 @@ def build_theory():
         row -= 1
 
     # 5 true letters = valid row
+    row_solutions = [[],[],[]]
     for word in WORDS:
         for row_num in range(2, -1, -1):
             E.add_constraint((
@@ -204,13 +210,31 @@ def build_theory():
                     (Tile(row_num, 4, BOARD[row_num][4], word[4])),
                 )
             ))
+            row_solutions[row_num].append(Row(
+                    row_num,
+                    (Tile(row_num, 0, BOARD[row_num][0], word[0])),
+                    (Tile(row_num, 1, BOARD[row_num][1], word[1])),
+                    (Tile(row_num, 2, BOARD[row_num][2], word[2])),
+                    (Tile(row_num, 3, BOARD[row_num][3], word[3])),
+                    (Tile(row_num, 4, BOARD[row_num][4], word[4])),
+                ))
 
-    # valid row cannot have duplicates
+    # white letter can only be on the board once
 
-    # valid row must also be word
+    # letter can't be green and yellow in the same row 
+    # green(3, 0, a) >> green(2, 0, a)
 
     # 4 valid rows = SOLUTION YAYAYAYAYYYYYY
-
+    i = 0
+    j = 0
+    k = 0
+    while i < len(row_solutions[0]):
+        while j < len(row_solutions[1]): 
+            while k < len(row_solutions[2]):
+                E.add_constraint((row_solutions[0][i] & row_solutions[1][j] & row_solutions[2][k]) >> Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k]) )
+                k +=1
+            j+=1
+        i+=1
     return E
 
 
