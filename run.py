@@ -1,5 +1,4 @@
 from words import WORDS
-from permutations import PERMUTATIONS
 import random, itertools
 
 from bauhaus import Encoding, proposition, constraint, Or, And
@@ -59,7 +58,7 @@ class Row(Hashable):
         self.letterFour = letterFour
 
     def __str__(self) -> str:
-        return f"Row {self.row_number} contains {self.letters}"
+        return f"Row {self.row_number} contains [{self.letterZero},{self.letterOne},{self.letterTwo},{self.letterThree},{self.letterFour}]"
 
 
 @proposition(E)
@@ -143,9 +142,9 @@ def build_theory():
     # constraint.add_exactly_one(E, a, b, c)
 
     # white letters cannot be part of key word
-    row = 0
+    row = 2
     column = 0
-    while row < len(BOARD):
+    while row > -1:
         while column < len(BOARD[row]):
             for letter in ALPHABET:
                 E.add_constraint(
@@ -155,12 +154,11 @@ def build_theory():
                     )
                 )
             column += 1
-        row += 1
-
+        row -=1
     # green letter cannot also be yellow in same column
-    row = 0
+    row = 2
     column = 0
-    while row < len(BOARD):
+    while row > -1:
         while column < len(BOARD[row]):
             for letter in ALPHABET:
                 E.add_constraint(
@@ -170,12 +168,12 @@ def build_theory():
                     )
                 )
             column += 1
-        row += 1
+        row -= 1
 
     # green letter in some column is always green REDUNDANT W CONSTRAINT 2 BUT WE MOVE
-    row = 0
+    row = 2
     column = 0
-    while row < len(BOARD):
+    while row > -1:
         while column < len(BOARD[row]):
             for letter in ALPHABET:
                 E.add_constraint(
@@ -185,35 +183,27 @@ def build_theory():
                     )
                 )
             column += 1
-        row += 1
+        row -= 1
 
     # 5 true letters = valid row
-    # row_num = 0
-    # for letter_1 in ALPHABET:
-    #     for letter_2 in ALPHABET:
-    #         for letter_3 in ALPHABET:
-    #             for letter_4 in ALPHABET:
-    #                 for letter_5 in ALPHABET:
-    #                     E.add_constraint(
-    #                         (
-    #                             (Tile(row_num, 0, BOARD[row_num][0], letter_1))
-    #                             & ((Tile(row_num, 1, BOARD[row_num][1], letter_2)))
-    #                             & ((Tile(row_num, 2, BOARD[row_num][2], letter_3)))
-    #                             & ((Tile(row_num, 3, BOARD[row_num][3], letter_4)))
-    #                             & ((Tile(row_num, 4, BOARD[row_num][4], letter_5)))
-    #                         )
-    #                         >> (
-    #                             Row(
-    #                                 row_num,
-    #                                 (Tile(row_num, 0, BOARD[row_num][0], letter_1)),
-    #                                 (Tile(row_num, 1, BOARD[row_num][1], letter_2)),
-    #                                 (Tile(row_num, 2, BOARD[row_num][2], letter_3)),
-    #                                 (Tile(row_num, 3, BOARD[row_num][3], letter_4)),
-    #                                 (Tile(row_num, 4, BOARD[row_num][4], letter_5)),
-    #                             )
-    #                         )
-    #                     )
-    # row_num += 1
+    for word in WORDS:
+        for row_num in range(2, -1, -1):
+            E.add_constraint((
+                (Tile(row_num, 0, BOARD[row_num][0], word[0]))
+                & (Tile(row_num, 1, BOARD[row_num][1], word[1]))
+                & (Tile(row_num, 2, BOARD[row_num][2], word[2]))
+                & (Tile(row_num, 3, BOARD[row_num][3], word[3]))
+                & (Tile(row_num, 4, BOARD[row_num][4], word[4]))
+            ) >> (
+                Row(
+                    row_num,
+                    (Tile(row_num, 0, BOARD[row_num][0], word[0])),
+                    (Tile(row_num, 1, BOARD[row_num][1], word[1])),
+                    (Tile(row_num, 2, BOARD[row_num][2], word[2])),
+                    (Tile(row_num, 3, BOARD[row_num][3], word[3])),
+                    (Tile(row_num, 4, BOARD[row_num][4], word[4])),
+                )
+            ))
 
     # valid row cannot have duplicates
 
