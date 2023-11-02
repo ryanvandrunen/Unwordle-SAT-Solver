@@ -212,14 +212,15 @@ def build_theory():
                     (Tile(row_num, 4, BOARD[row_num][4], word[4])),
                 )
             ))
-            row_solutions[row_num].append(Row(
-                    row_num,
-                    (Tile(row_num, 0, BOARD[row_num][0], word[0])),
-                    (Tile(row_num, 1, BOARD[row_num][1], word[1])),
-                    (Tile(row_num, 2, BOARD[row_num][2], word[2])),
-                    (Tile(row_num, 3, BOARD[row_num][3], word[3])),
-                    (Tile(row_num, 4, BOARD[row_num][4], word[4])),
-                ))
+            if (row_num != 3):
+                row_solutions[row_num].append(Row(
+                        row_num,
+                        (Tile(row_num, 0, BOARD[row_num][0], word[0])),
+                        (Tile(row_num, 1, BOARD[row_num][1], word[1])),
+                        (Tile(row_num, 2, BOARD[row_num][2], word[2])),
+                        (Tile(row_num, 3, BOARD[row_num][3], word[3])),
+                        (Tile(row_num, 4, BOARD[row_num][4], word[4])),
+                    ))
 
     for solutions in row_solutions: 
         constraint.add_exactly_one(E,[row_solutions[0][i]for num in range(3)])
