@@ -1,4 +1,5 @@
 from words import WORDS
+COLOURS = ['Green', 'White', 'Yellow']
 import pprint
 
 from bauhaus import Encoding, proposition, constraint, Or, And
@@ -43,6 +44,14 @@ class Tile(Hashable):
 
     def __str__(self) -> str:
         return f"({self.colour} {self.letter} at {self.x_index}, {self.y_index})"
+    
+@proposition(E)
+class Word(Hashable):
+    def __init__(self, word) -> None:
+        self.word = word
+
+    def __str__(self) -> str:
+        return f"({self.word})"
 
 
 @proposition(E)
@@ -153,7 +162,13 @@ def build_theory():
                 E.add_constraint(
                     (
                         (Tile(3, column, "Green", letter))
-                        | ((Tile(row, column, "White", letter)))
+                        >> ~((Tile(row, column, "White", letter)))
+                    )
+                )
+                E.add_constraint(
+                    (
+                        (Tile(row, column, "Yellow", letter))
+                        >> ~((Tile(row, column, "White", letter)))
                     )
                 )
                 E.add_constraint(
@@ -202,13 +217,13 @@ def build_theory():
 
     # white letter can only be on the board once
 
-    for letter in ALPHABET:
-        for row1 in range(4):
-            for row2 in range(4):
-                for i in range(5):
-                    for j in range(5):
-                        if row1 != row2:
-                            E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, j, "White", letter)))
+    # for letter in ALPHABET:
+    #     for row1 in range(4):
+    #         for row2 in range(4):
+    #             for i in range(5):
+    #                 for j in range(5):
+    #                     if row1 != row2:
+    #                         E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, j, "White", letter)))
 
 
 
@@ -216,15 +231,11 @@ def build_theory():
     # green(3, 0, a) >> green(2, 0, a)
 
     # cant guess the same word
-    for word in WORDS:
-        for row1 in range(4):
-            for row2 in range(4):
-                if row1 != row2:
-                    constraint.add_exactly_one(E, Row(row1, Tile(row1, 0, BOARD[row1][0], word[0]),
-                                                      Tile(row1, 1, BOARD[row1][1], word[1]),
-                                                      Tile(row1, 2, BOARD[row1][2], word[2]),
-                                                      Tile(row1, 3, BOARD[row1][3], word[3]),
-                                                      Tile(row1, 4, BOARD[row1][4], word[4])))
+    # for word in WORDS: 
+    #     for row1 in range(4):
+    #         for row2 in range(4):
+    #             if row1 != row2:
+    #                 E.add_constraint(~(Row(row1,) & Row(row2)))
 
     # 4 valid rows = SOLUTION YAYAYAYAYYYYYY
     i = 0
@@ -234,7 +245,6 @@ def build_theory():
         while j < len(row_solutions[1]): 
             while k < len(row_solutions[2]):
                 E.add_constraint((row_solutions[0][i] & row_solutions[1][j] & row_solutions[2][k]) >> Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k], bottom_row) )
-                k +=1
             j+=1
         i+=1
 
