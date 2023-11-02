@@ -143,6 +143,8 @@ def build_theory():
         Tile(3,i,"Green", BOARD[3][i][-1:])
         i += 1
     # white  cannot be part of key word
+    # green letter cannot also be yellow in the same column
+    # green letter in some column is always green 
     row = 2
     column = 0
     while row > -1:
@@ -154,29 +156,12 @@ def build_theory():
                         | ((Tile(row, column, "White", letter)))
                     )
                 )
-            column += 1
-        row -=1
-    # green letter cannot also be yellow in same column
-    row = 2
-    column = 0
-    while row > -1:
-        while column < len(BOARD[row]):
-            for letter in ALPHABET:
                 E.add_constraint(
                     (
                         ~(Tile(3, column, "Green", letter))
                         | ~((Tile(row, column, "Yellow", letter)))
                     )
                 )
-            column += 1
-        row -= 1
-
-    # green letter in some column is always green REDUNDANT W CONSTRAINT 2 BUT WE MOVE
-    row = 2
-    column = 0
-    while row > -1:
-        while column < len(BOARD[row]):
-            for letter in ALPHABET:
                 E.add_constraint(
                     (
                         (Tile(3, column, "Green", letter))
@@ -184,7 +169,7 @@ def build_theory():
                     )
                 )
             column += 1
-        row -= 1
+        row -=1
 
     # 5 true letters = valid row
     row_solutions = [[],[],[]]
@@ -221,8 +206,9 @@ def build_theory():
         for row1 in range(4):
             for row2 in range(4):
                 for i in range(5):
-                    if row1 != row2:
-                        E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, i, "White", letter)))
+                    for j in range(5):
+                        if row1 != row2:
+                            E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, j, "White", letter)))
 
 
 
