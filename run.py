@@ -76,7 +76,7 @@ BOARD = [
     ["White", "White", "White", "White", "White"],
     ["White", "White", "White", "White", "Yellow"],
     ["Yellow", "White", "Yellow", "Green", "White"],
-    ["Greeng", "Greenr", "Greena", "Greeni", "Greenl"],
+    ["Greenf", "Greeno", "Greenu", "Greenn", "Greend"],
 ]
 
 
@@ -122,13 +122,6 @@ for a in ALPHABET:
     for i in range(3):
         for j in range(5):
             possible_tiles[i].append(Tile(i, j, BOARD[i][j], a))
-
-def display_board(board):
-    for row in board:
-        print(row)
-
-
-# BOARD = board_gen()
 
 
 def build_theory():
@@ -224,6 +217,8 @@ def build_theory():
     # letter can't be green and yellow in the same row 
     # green(3, 0, a) >> green(2, 0, a)
 
+    # cant guess the same word
+
     # 4 valid rows = SOLUTION YAYAYAYAYYYYYY
     i = 0
     j = 0
@@ -238,6 +233,12 @@ def build_theory():
 
     return E
 
+def display_board(board):
+    for row in board:
+        print(row)
+
+def display_solutions(sol):
+    pprint.pprint(sol)
 
 if __name__ == "__main__":
     T = build_theory()
@@ -250,7 +251,7 @@ if __name__ == "__main__":
     print("\nSatisfiable: %s" % T.satisfiable())
     print("# Solutions: %d" % count_solutions(T))
     sol = T.solve()
-    pprint.pprint(sol)
+    display_solutions(sol)
 
     # print("\nVariable likelihoods:")
     # for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
