@@ -1,5 +1,5 @@
 from words import WORDS
-import random, itertools
+import pprint
 
 from bauhaus import Encoding, proposition, constraint, Or, And
 from bauhaus.utils import count_solutions, likelihood
@@ -235,6 +235,7 @@ def build_theory():
                 k +=1
             j+=1
         i+=1
+
     return E
 
 
@@ -248,7 +249,8 @@ if __name__ == "__main__":
     print("got here")
     print("\nSatisfiable: %s" % T.satisfiable())
     print("# Solutions: %d" % count_solutions(T))
-    print("   Solution: %s" % T.solve())
+    sol = T.solve()
+    pprint.pprint(sol)
 
     # print("\nVariable likelihoods:")
     # for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
