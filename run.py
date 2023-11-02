@@ -216,6 +216,15 @@ def build_theory():
     # green(3, 0, a) >> green(2, 0, a)
 
     # cant guess the same word
+    for word in WORDS:
+        for row1 in range(4):
+            for row2 in range(4):
+                if row1 != row2:
+                    constraint.add_exactly_one(E, Row(row1, Tile(row1, 0, BOARD[row1][0], word[0]),
+                                                      Tile(row1, 1, BOARD[row1][1], word[1]),
+                                                      Tile(row1, 2, BOARD[row1][2], word[2]),
+                                                      Tile(row1, 3, BOARD[row1][3], word[3]),
+                                                      Tile(row1, 4, BOARD[row1][4], word[4])))
 
     # 4 valid rows = SOLUTION YAYAYAYAYYYYYY
     i = 0
