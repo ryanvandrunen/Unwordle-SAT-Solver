@@ -110,9 +110,17 @@ for word in WORDS:
 
 for i in range(5): 
     Tile(3,i,"Green",SOL[i])
+
     
 def build_theory():
     print("got here2")
+
+    # for r in range(3,-1,-1): 
+    #     for col in range(5):
+    #         for letter1 in NOTSOL: 
+    #             for letter2 in NOTSOL:
+    #                 if letter1 != letter2: 
+    #                     E.add_constraint((Tile(r,col,BOARD[r][col],letter1)) | (Tile(r,col,BOARD[r][col],letter2)))
 
     for r in range(3,-1,-1): 
         for col in range(5):
@@ -146,11 +154,6 @@ def build_theory():
     #                 if letter1 != letter2: 
     #                     E.add_constraint((Tile(r,col,BOARD[r][col],letter1)) | (Tile(r,col,BOARD[r][col],letter2)))
  
-    # for r in range(3,-1,-1): 
-    #     for col1 in range(5):
-    #         for col2 in range(5): 
-    #             for letter in SOL:
-    #                 if col1 != col2:
                         
     return E
 
