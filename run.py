@@ -63,13 +63,14 @@ class Row(Hashable):
 
 @proposition(E)
 class Board(Hashable):
-    def __init__(self, row1, row2, row3) -> None:
+    def __init__(self, row1, row2, row3, row4) -> None:
         self.row1 = row1
         self.row2 = row2
         self.row3 = row3
+        self.row4 = row4
 
     def __str__(self) -> str:
-        return f"{self.row1} \n {self.row2} \n {self.row3} \n"
+        return f"{self.row1} \n {self.row2} \n {self.row3} \n {self.row4}"
 
 
 BOARD = [
@@ -122,6 +123,8 @@ for a in ALPHABET:
     for i in range(3):
         for j in range(5):
             possible_tiles[i].append(Tile(i, j, BOARD[i][j], a))
+
+bottom_row = Row(3, possible_tiles[3][0], possible_tiles[3][1], possible_tiles[3][2], possible_tiles[3][3], possible_tiles[3][4])
 
 
 def build_theory():
@@ -214,6 +217,15 @@ def build_theory():
 
     # white letter can only be on the board once
 
+    for letter in ALPHABET:
+        for row1 in range(4):
+            for row2 in range(4):
+                for i in range(5):
+                    if row1 != row2:
+                        E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, i, "White", letter)))
+
+
+
     # letter can't be green and yellow in the same row 
     # green(3, 0, a) >> green(2, 0, a)
 
@@ -226,7 +238,7 @@ def build_theory():
     while i < len(row_solutions[0]):
         while j < len(row_solutions[1]): 
             while k < len(row_solutions[2]):
-                E.add_constraint((row_solutions[0][i] & row_solutions[1][j] & row_solutions[2][k]) >> Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k]) )
+                E.add_constraint((row_solutions[0][i] & row_solutions[1][j] & row_solutions[2][k]) >> Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k], bottom_row) )
                 k +=1
             j+=1
         i+=1
