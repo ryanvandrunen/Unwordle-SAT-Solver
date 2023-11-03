@@ -1,5 +1,4 @@
 from words import WORDS
-COLOURS = ['Green', 'White', 'Yellow']
 import pprint
 
 from bauhaus import Encoding, proposition, constraint, Or, And
@@ -12,9 +11,6 @@ config.sat_backend = "kissat"
 
 # Encoding that will store all of your constraints
 E = Encoding()
-ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-SOL = ['f','o','u','n','d']
-row_solutions = [[],[],[]]
 print("got here1")
 
 
@@ -83,7 +79,11 @@ class Board(Hashable):
     def __str__(self) -> str:
         return f"{self.row1} \n {self.row2} \n {self.row3} \n {self.row4}"
 
-
+ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+SOL = ['f','o','u','n','d']
+COLOURS = ['Green', 'White', 'Yellow']
+row_solutions = [[],[],[]]
+NOTSOL = ['a','b','c','e','g','h','i','j','k','l','m','p','q','r','s','t','v','w','x','y','z']
 BOARD = [
     ["White", "White", "White", "White", "White"],
     ["White", "White", "White", "White", "Yellow"],
@@ -165,25 +165,16 @@ def build_theory():
     #                 E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Yellow", SOL[col1])))
 
     for r in range(3,-1,-1): 
-        for col1 in range(5):
-            for col2 in range(5):
+        for col in range(5):
                 for letter in ALPHABET:
-                    E.add_constraint((
-                            (Tile(r, col1, "Green", letter)) | (Tile(r, col1, "Yellow", letter)) | (Tile(r, col1, "White", letter))
-                        ))
-                    if letter not in SOL:
-                        E.add_constraint(
-                            (
-                                ~(Tile(r, col1, "Green", letter))
-                            )
-                        )
-                        E.add_constraint( ~(Tile(r, col1, "Yellow", letter)))
-                    else:
-                        E.add_constraint( ~(Tile(r, col1, "White", letter)))
-                        if col1 == col2: 
-                            E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Green", SOL[col1])))
-                        else: 
-                            E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Yellow", SOL[col1])))
+                    for colour in COLOURS:
+                        if colour != BOARD[r][col]:
+                            E.add_constraint(~(Tile(r,col,colour,letter)))
+                        else:
+                            if letter in SOL: 
+                                E.add_constraint(~(Tile(r, col, "White", letter)))
+                                # if letter == SOL[col]:
+                                #     E.add_constraint(Tile(r, col, "Green", letter))
 
     # for letter in ALPHABET:
     #     for r1 in range(3,-1,-1):
@@ -226,13 +217,13 @@ def build_theory():
         constraint.add_exactly_one(E,[row_solutions[0][i]for num in range(3)])
     # white letter can only be on the board once
 
-    # for letter in ALPHABET:
-    #     for row1 in range(4):
-    #         for row2 in range(4):
-    #             for i in range(5):
-    #                 for j in range(5):
-    #                     if row1 != row2:
-    #                         E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, j, "White", letter)))
+    for letter in ALPHABET:
+        for row1 in range(3):
+            for row2 in range(3):
+                for i in range(5):
+                    for j in range(5):
+                        if row1 != row2:
+                            E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, j, "White", letter)))
 
 
 
@@ -272,20 +263,7 @@ def display_board(board):
         print(row)
 
 def display_solutions(sol):
-    display_rows(sol)
-
-def display_rows(sol): 
-    print(len(row_solutions[0]))
-    print(len(row_solutions[1]))
-    print(len(row_solutions[2]))
-    print(Board(row_solutions[0][0], row_solutions[1][1], row_solutions[2][0], bottom_row))
-    for i in range (len(row_solutions[0])): 
-        print("i:", i)
-        for j in range (len(row_solutions[1])):
-            print("j:", j)
-            for k in range (len(row_solutions[2])):
-                if sol[Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k], bottom_row)]: 
-                    print(Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k], bottom_row))
+    pprint.pprint(sol)
 
 if __name__ == "__main__":
     T = build_theory()
