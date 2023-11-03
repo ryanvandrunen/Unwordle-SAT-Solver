@@ -1,4 +1,5 @@
 from words import WORDS
+COLOURS = ['Green', 'White', 'Yellow']
 import pprint
 
 from bauhaus import Encoding, proposition, constraint, Or, And
@@ -12,9 +13,11 @@ config.sat_backend = "kissat"
 # Encoding that will store all of your constraints
 E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-print("got here4")
 SOL = ['f','o','u','n','d']
-COLOURS = ['Green', 'White', 'Yellow']
+row_solutions = [[],[],[]]
+print("got here1")
+
+
 class Hashable:
     def __hash__(self):
         return hash(str(self))
@@ -24,6 +27,14 @@ class Hashable:
 
     def __repr__(self):
         return str(self)
+
+
+# Different classes for propositions are useful because this allows for more dynamic constraint creation
+# for propositions within that class. For example, you can enforce that "at least one" of the propositions
+# that are instances of this class must be true by using a @constraint decorator.
+# other options include: at most one, exactly one, at most k, and implies all.
+# For a complete module reference, see https://bauhaus.readthedocs.io/en/latest/bauhaus.html
+
 
 @proposition(E)
 class Tile(Hashable):
@@ -72,7 +83,7 @@ class Board(Hashable):
     def __str__(self) -> str:
         return f"{self.row1} \n {self.row2} \n {self.row3} \n {self.row4}"
 
-NOTSOL = ['a','b','c','e','g','h','i','j','k','l','m','p','q','r','s','t','v','w','x','y','z']
+
 BOARD = [
     ["White", "White", "White", "White", "White"],
     ["White", "White", "White", "White", "Yellow"],
@@ -137,7 +148,6 @@ def build_theory():
     # # You can also add more customized "fancy" constraints. Use case: you don't want to enforce "exactly one"
     # # for every instance of BasicPropositions, but you want to enforce it for a, b, and c.:
     # constraint.add_exactly_one(E, a, b, c)
-
     i = 0 
     while i < len(BOARD[3]): 
         Tile(3,i,"Green", BOARD[3][i][-1:])
@@ -145,40 +155,45 @@ def build_theory():
     # white  cannot be part of key word
     # green letter cannot also be yellow in the same column
     # green letter in some column is always green 
-    row = 2
-    column = 0
-    while row > -1:
-        while column < len(BOARD[row]):
-            for letter in ALPHABET:
-                E.add_constraint(
-                    (
-                        (Tile(3, column, "Green", letter))
-                        >> ~((Tile(row, column, "White", letter)))
-                    )
-                )
-                E.add_constraint(
-                    (
-                        (Tile(row, column, "Yellow", letter))
-                        >> ~((Tile(row, column, "White", letter)))
-                    )
-                )
-                E.add_constraint(
-                    (
-                        ~(Tile(3, column, "Green", letter))
-                        | ~((Tile(row, column, "Yellow", letter)))
-                    )
-                )
-                E.add_constraint(
-                    (
-                        (Tile(3, column, "Green", letter))
-                        & ((Tile(row, column, "Green", letter)))
-                    )
-                )
-            column += 1
-        row -=1
+                
+    # for r in range(3,-1,-1):
+    #     for col1 in range(5):
+    #         for col2 in range(5):
+    #             if col1 == col2: 
+    #                 E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Green", SOL[col1])))
+    #             else: 
+    #                 E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Yellow", SOL[col1])))
+
+    for r in range(3,-1,-1): 
+        for col1 in range(5):
+            for col2 in range(5):
+                for letter in ALPHABET:
+                    E.add_constraint((
+                            (Tile(r, col1, "Green", letter)) | (Tile(r, col1, "Yellow", letter)) | (Tile(r, col1, "White", letter))
+                        ))
+                    if letter not in SOL:
+                        E.add_constraint(
+                            (
+                                ~(Tile(r, col1, "Green", letter))
+                            )
+                        )
+                        E.add_constraint( ~(Tile(r, col1, "Yellow", letter)))
+                    else:
+                        E.add_constraint( ~(Tile(r, col1, "White", letter)))
+                        if col1 == col2: 
+                            E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Green", SOL[col1])))
+                        else: 
+                            E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Yellow", SOL[col1])))
+
+    # for letter in ALPHABET:
+    #     for r1 in range(3,-1,-1):
+    #         for r2 in range(3,-1,-1):
+    #             for col in range(5):
+    #                 if r1 != r2: 
+    #                     E.add_constraint(~((Tile(r1, col, "White", letter)) & (Tile(r2, col, "White", letter))))
 
     # 5 true letters = valid row
-    row_solutions = [[],[],[]]
+
     for word in WORDS:
         for row_num in range(3, -1, -1):
             E.add_constraint((
@@ -211,13 +226,13 @@ def build_theory():
         constraint.add_exactly_one(E,[row_solutions[0][i]for num in range(3)])
     # white letter can only be on the board once
 
-    for letter in ALPHABET:
-        for row1 in range(3):
-            for row2 in range(3):
-                for i in range(5):
-                    for j in range(5):
-                        if row1 != row2:
-                            E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, j, "White", letter)))
+    # for letter in ALPHABET:
+    #     for row1 in range(4):
+    #         for row2 in range(4):
+    #             for i in range(5):
+    #                 for j in range(5):
+    #                     if row1 != row2:
+    #                         E.add_constraint(~(Tile(row1, i, "White", letter) & Tile(row2, j, "White", letter)))
 
 
 
@@ -233,14 +248,20 @@ def build_theory():
                     E.add_constraint(~((Row(row1, word[0],word[1],word[2],word[3],word[4])) & (Row(row2, word[0],word[1],word[2],word[3],word[4]))))
 
 
-    #4 valid rows = SOLUTION YAYAYAYAYYYYYY
+    # 4 valid rows = SOLUTION YAYAYAYAYYYYYY
     i = 0
     j = 0
     k = 0
     while i < len(row_solutions[0]):
         while j < len(row_solutions[1]): 
             while k < len(row_solutions[2]):
-                E.add_constraint((row_solutions[0][i] & row_solutions[1][j] & row_solutions[2][k]) >> Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k], bottom_row) )
+                if row_solutions[0][i] == row_solutions[1][j] == row_solutions[2][k]: 
+                    E.add_constraint(~((row_solutions[0][i] & row_solutions[1][j] & row_solutions[2][k])>> 
+                                    Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k], bottom_row)))
+                else:
+                    E.add_constraint((row_solutions[0][i] & row_solutions[1][j] & row_solutions[2][k] & bottom_row) >> 
+                                    (Board(row_solutions[0][i], row_solutions[1][j], row_solutions[2][k], bottom_row)))
+                k+=1
             j+=1
         i+=1
 
@@ -272,7 +293,6 @@ if __name__ == "__main__":
 
     # # Don't compile until you're finished adding all your constraints!
     T = T.compile()
-    # E.introspect()
     # After compilation (and only after), you can check some of the properties
     # of your model:
     print("got here4")
@@ -280,8 +300,6 @@ if __name__ == "__main__":
     print("# Solutions: %d" % count_solutions(T))
     sol = T.solve()
     display_solutions(sol)
-    print("\nSatisfiable: %s" % T.satisfiable())
-    print("# Solutions: %d" % count_solutions(T))
 
     # print("\nVariable likelihoods:")
     # for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
