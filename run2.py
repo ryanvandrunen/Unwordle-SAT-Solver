@@ -1,6 +1,7 @@
 from words import WORDS
 COLOURS = ['Green', 'White', 'Yellow']
-import pprint
+import numpy as np
+import random
 
 from bauhaus import Encoding, proposition, constraint, Or, And
 from bauhaus.utils import count_solutions, likelihood
@@ -15,24 +16,22 @@ config.sat_backend = "kissat"
 #global vars 
 E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-SOL = ['f','o','u','n','d']
-NOTSOL = ['a', 'b', 'c', 'e', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']
+# SOL = [x for x in WORDS[random.randint(0, len(WORDS)-1)]]
+SOL = ['w', 'a', 't', 'e', 'r']
+NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
 BOARD = [
-    ["White", "White", "White", "Yellow", "White"],
-    ["White", "White", "White", "White", "Yellow"],
-    ["Yellow", "White", "Yellow", "Green", "White"],
+    ["White", "Yellow", "White", "Yellow", "White"],
+    ["Yellow", "Green", "White", "White", "White"],
+    ["Yellow", "Green", "Yellow", "Green", "White"],
     ["Green", "Green", "Green", "Green", "Green"],
 ]
-possible_tiles = {0: [],
-                  1: [],
-                  2: [],
-                  3: []}
+# possible_tiles = {0: [],
+#                   1: [],
+#                   2: [],
+#                   3: []}
 valid_tiles = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]], [[], [], [], [], []]]
 valid_rows = [[], [], [], []]
 valid_boards = []
-
-#marker 
-print("got here1")
 
 
 class Hashable:
@@ -93,18 +92,18 @@ class Board(Hashable):
 
 
 
-for i in range(5):
-    possible_tiles[3].append(Tile(3, i, BOARD[3][i], SOL[i]))
-for a in ALPHABET:
-    for i in range(3):
-        for j in range(5):
-            possible_tiles[i].append(Tile(i, j, BOARD[i][j], a))
+# for i in range(5):
+#     possible_tiles[3].append(Tile(3, i, BOARD[3][i], SOL[i]))
+# for a in ALPHABET:
+#     for i in range(3):
+#         for j in range(5):
+#             possible_tiles[i].append(Tile(i, j, BOARD[i][j], a))
 
-bottom_row = Row(3, possible_tiles[3][0], possible_tiles[3][1], possible_tiles[3][2], possible_tiles[3][3], possible_tiles[3][4])
+# bottom_row = Row(3, possible_tiles[3][0], possible_tiles[3][1], possible_tiles[3][2], possible_tiles[3][3], possible_tiles[3][4])
 
-for word in WORDS:
-    for row in range(2,-1,-1): 
-        Row(row,word[0],word[1],word[2],word[3],word[4])
+# for word in WORDS:
+#     for row in range(2,-1,-1): 
+#         Row(row,word[0],word[1],word[2],word[3],word[4])
 
     
 def build_theory():
@@ -125,11 +124,9 @@ def build_theory():
     for r in range(2,-1,-1): 
         for col in range(5):
             for letter in NOTSOL: 
-                if BOARD[r][col] == "Green": 
-                    E.add_constraint(~(Tile(r,col,"Green",letter)))
-                if BOARD[r][col] == "Yellow": 
-                    E.add_constraint(~(Tile(r,col,"Yellow",letter)))
-                else: 
+                E.add_constraint(~(Tile(r,col,"Green",letter)))
+                E.add_constraint(~(Tile(r,col,"Yellow",letter)))
+                if BOARD[r][col] == "White":
                     E.add_constraint(Tile(r,col,"White",letter))
                     valid_tiles[r][col].append(Tile(r,col,"White",letter))
 
@@ -158,49 +155,49 @@ def build_theory():
 
     return E
 
-def remove_duplicates(orig_list):
-    result_list = []
-    for sublist in orig_list:
-        temp = list(dict.fromkeys(sublist))
-        result_list.append(temp)
-    
-    return result_list
+def remove_duplicates(boards):
+    pass
 
+# def solutions_count(solutions):
+#     board_solutions = []
+#     for r1 in valid_rows[0]:
+#         for r2 in valid_rows[1]:
+#             for r3 in valid_rows[2]:
+#                 for r4 in valid_rows[3]:
+#                     if solutions[Board(r1, r2, r3, r4)]:
+#                         board_solutions.append(Board(r1, r2, r3, r4))
+#     return board_solutions
+        
 
 def display_board(BOARD):
-    for row in BOARD:
-        print(row)
+    row_iter = [BOARD.row1, BOARD.row2, BOARD.row3, BOARD.row4]
+    for row in row_iter:
+        letter_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(letter_iter))
 
 def display_solutions(sol):
-    print('Possible first row words: ')
-    for row in valid_rows[0]:
-        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(word_iter))
-    print('Possible second row words: ')
-    for row in valid_rows[1]:
-        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(word_iter))
-    print('Possible third row words: ')
-    for row in valid_rows[2]:
-        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(word_iter))
-    print('Possible third row words: ')
-    for row in valid_rows[3]:
-        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(word_iter))
+    num_sol = len(sol)
+    print(f"Board Solutions: %d" % num_sol)
+    if num_sol == 0:
+        print('No valid boards to display.')
+    else: 
+        print('Possible solution:')
+        display_board(sol[random.randint(0, len(sol)-1)])
 
 if __name__ == "__main__":
+    print(f"The final word is: {''.join(SOL)}")
     T = build_theory()
     # # Don't compile until you're finished adding all your constraints!
     T = T.compile()
     # After compilation (and only after), you can check some of the properties
     # of your model:
-    print("\nSatisfiable: %s" % T.satisfiable())
-    print("# Solutions: %d" % count_solutions(T))
+    print("Satisfiable: %s" % T.satisfiable())
+    # print("# Solutions: %d" % count_solutions(T))
     sol = T.solve()
-    # get rid of duplicates
-    valid_rows = remove_duplicates(valid_rows)
-    display_solutions(sol)
+    unique_sol = []
+    [unique_sol.append(item) for item in sol if item not in unique_sol and isinstance(item, Board)]
+
+    display_solutions(unique_sol)
 
     # print("\nVariable likelihoods:")
     # for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
@@ -208,4 +205,3 @@ if __name__ == "__main__":
     #     # Literals are compiled to NNF here
     #     print(" %s: %.2f" % (vn, likelihood(T, v)))
     # print()
-    display_board(BOARD)
