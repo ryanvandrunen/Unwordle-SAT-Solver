@@ -16,19 +16,20 @@ config.sat_backend = "kissat"
 E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 SOL = ['f','o','u','n','d']
-NOTSOL = ['a','b','c','e','g','h','i','j','k','l','m','p','q','r','s','t','v','w','x','y','z']
+NOTSOL = ['a', 'b', 'c', 'e', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z']
 BOARD = [
     ["White", "White", "White", "Yellow", "White"],
     ["White", "White", "White", "White", "Yellow"],
     ["Yellow", "White", "Yellow", "Green", "White"],
-    ["Greenf", "Greeno", "Greenu", "Greenn", "Greend"],
+    ["Green", "Green", "Green", "Green", "Green"],
 ]
 possible_tiles = {0: [],
                   1: [],
                   2: [],
                   3: []}
-valid_tiles = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]]]
-row_solutions = [[],[],[]]
+valid_tiles = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]], [[], [], [], [], []]]
+valid_rows = [[], [], [], []]
+valid_boards = []
 
 #marker 
 print("got here1")
@@ -102,7 +103,7 @@ class Board(Hashable):
 
 
 for i in range(5):
-    possible_tiles[3].append(Tile(3, i, BOARD[3][i][:-1], BOARD[3][i][-1:]))
+    possible_tiles[3].append(Tile(3, i, BOARD[3][i], SOL[i]))
 for a in ALPHABET:
     for i in range(3):
         for j in range(5):
@@ -119,15 +120,15 @@ def build_theory():
 
     #marker
     print("got here2")
-
-    for r in range(2,-1,-1): 
+    
+    for r in range(3,-1,-1): 
         for col in range(5):
             for letter in SOL:
                 if BOARD[r][col] == "Green": 
                     E.add_constraint(Tile(r,col,"Green",SOL[col]))
                     valid_tiles[r][col].append(Tile(r,col,"Green",SOL[col]))
                 if BOARD[r][col] == "Yellow": 
-                    E.add_constraint(~(Tile(r,col,"Yellow",SOL[col])))
+                    E.add_constraint(~(Tile(r,col,"Yellow",SOL[col])))  
                 if BOARD[r][col] == "Yellow": 
                     if letter != SOL[col]:
                         E.add_constraint(Tile(r,col,"Yellow",letter))
@@ -144,17 +145,29 @@ def build_theory():
                     E.add_constraint(Tile(r,col,"White",letter))
                     valid_tiles[r][col].append(Tile(r,col,"White",letter))
 
-    # for r in range(2): 
-    #     for let1 in valid_tiles[r][0]:
-    #         for let2 in valid_tiles[r][1]:
-    #             for let3 in valid_tiles[r][2]:
-    #                 for let4 in valid_tiles[r][3]:
-    #                     for let5 in valid_tiles[r][4]:
-    #                         pot_word = let1.letter +let2.letter +let3.letter+let4.letter+let5.letter
-    #                         if pot_word in WORDS: 
-    #                             print(pot_word)
-    #                             Row(r,let1,let2,let3,let4,let5)
-    
+    for row in range(4):
+        for let1 in valid_tiles[row][0]:
+            for let2 in valid_tiles[row][1]:
+                for let3 in valid_tiles[row][2]:
+                    for let4 in valid_tiles[row][3]:
+                        for let5 in valid_tiles[row][4]:
+                            pot_word = let1.letter + let2.letter + let3.letter + let4.letter + let5.letter
+                            if pot_word in WORDS:
+                                E.add_constraint((
+                                    (let1 & let2 & let3 & let4 & let5) & Row(row, let1, let2, let3, let4, let5)
+                                ))
+                                valid_rows[row].append(Row(row, let1, let2, let3, let4, let5))
+
+    for row1 in valid_rows[0]:
+        for row2 in valid_rows[1]:
+            for row3 in valid_rows[2]:
+                for row4 in valid_rows[3]:
+                    E.add_constraint((
+                        (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
+                    ))
+                    valid_boards.append(Board(row1, row2, row3,))
+
+
     return E
 
 def display_board(BOARD):
