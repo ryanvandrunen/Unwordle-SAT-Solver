@@ -1,6 +1,4 @@
 from words import WORDS
-COLOURS = ['Green', 'White', 'Yellow']
-import numpy as np
 import random
 
 from bauhaus import Encoding, proposition, constraint, Or, And
@@ -16,19 +14,17 @@ config.sat_backend = "kissat"
 #global vars 
 E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-# SOL = [x for x in WORDS[random.randint(0, len(WORDS)-1)]]
-SOL = ['w', 'a', 't', 'e', 'r']
+# Pick a random word from words.py and split it into a list of characters
+SOL = [x for x in WORDS[random.randint(0, len(WORDS)-1)]]
+# Generate a list of all the characters not used in the solution
 NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
+# Give a valid colour layout to the SAT solver
 BOARD = [
     ["White", "Yellow", "White", "Yellow", "White"],
     ["Yellow", "Green", "White", "White", "White"],
     ["Yellow", "Green", "Yellow", "Green", "White"],
     ["Green", "Green", "Green", "Green", "Green"],
 ]
-# possible_tiles = {0: [],
-#                   1: [],
-#                   2: [],
-#                   3: []}
 valid_tiles = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]], [[], [], [], [], []]]
 valid_rows = [[], [], [], []]
 valid_boards = []
@@ -51,7 +47,7 @@ class Hashable:
 # other options include: at most one, exactly one, at most k, and implies all.
 # For a complete module reference, see https://bauhaus.readthedocs.io/en/latest/bauhaus.html
 
-
+# Proposition for a Tile, holds row, column index, colour and letter
 @proposition(E)
 class Tile(Hashable):
     def __init__(self, x_index, y_index, colour, letter) -> None:
@@ -63,6 +59,7 @@ class Tile(Hashable):
     def __str__(self) -> str:
         return f"({self.colour} {self.letter} at {self.x_index}, {self.y_index})"
 
+# Proposition for a Row, holds row number (0-3) and the 5 tiles it contains
 @proposition(E)
 class Row(Hashable):
     def __init__(
@@ -78,7 +75,7 @@ class Row(Hashable):
     def __str__(self) -> str:
         return f"Row {self.row_number} contains [{self.letterZero},{self.letterOne},{self.letterTwo},{self.letterThree},{self.letterFour}]"
 
-
+# Proposition for a Board, holds the 4 rows it contains
 @proposition(E)
 class Board(Hashable):
     def __init__(self, row1, row2, row3, row4) -> None:
@@ -90,30 +87,19 @@ class Board(Hashable):
     def __str__(self) -> str:
         return f"{self.row1} \n {self.row2} \n {self.row3} \n {self.row4}"
 
-
-
-# for i in range(5):
-#     possible_tiles[3].append(Tile(3, i, BOARD[3][i], SOL[i]))
-# for a in ALPHABET:
-#     for i in range(3):
-#         for j in range(5):
-#             possible_tiles[i].append(Tile(i, j, BOARD[i][j], a))
-
-# bottom_row = Row(3, possible_tiles[3][0], possible_tiles[3][1], possible_tiles[3][2], possible_tiles[3][3], possible_tiles[3][4])
-
-# for word in WORDS:
-#     for row in range(2,-1,-1): 
-#         Row(row,word[0],word[1],word[2],word[3],word[4])
-
     
 def build_theory():
     
+    # Iterate through every tile on the board and every letter in the final word
     for r in range(3,-1,-1): 
         for col in range(5):
             for letter in SOL:
+                # If the tile must be green, add a constraint that the Tile at that index must be a Green tile
+                # with the letter from that column of the final word
                 if BOARD[r][col] == "Green": 
                     E.add_constraint(Tile(r,col,"Green",SOL[col]))
                     valid_tiles[r][col].append(Tile(r,col,"Green",SOL[col]))
+                # If the tile must be yellow, 
                 if BOARD[r][col] == "Yellow": 
                     E.add_constraint(~(Tile(r,col,"Yellow",SOL[col])))  
                 if BOARD[r][col] == "Yellow": 
@@ -121,21 +107,29 @@ def build_theory():
                         E.add_constraint(Tile(r,col,"Yellow",letter))
                         valid_tiles[r][col].append(Tile(r,col,"Yellow",letter))
 
+    # Iterate through every tile on the board and every letter not in the final word
     for r in range(2,-1,-1): 
         for col in range(5):
             for letter in NOTSOL: 
+                # The letter at any index cannot be a Green or Yellow tile
                 E.add_constraint(~(Tile(r,col,"Green",letter)))
                 E.add_constraint(~(Tile(r,col,"Yellow",letter)))
+                # If the index must be White, then any letter not in the solution 
+                # is a valid tile at that index
                 if BOARD[r][col] == "White":
                     E.add_constraint(Tile(r,col,"White",letter))
                     valid_tiles[r][col].append(Tile(r,col,"White",letter))
 
+    # For every valid tile that we gathered
     for row in range(4):
         for let1 in valid_tiles[row][0]:
             for let2 in valid_tiles[row][1]:
                 for let3 in valid_tiles[row][2]:
                     for let4 in valid_tiles[row][3]:
                         for let5 in valid_tiles[row][4]:
+                            # If the letters of all 5 tiles are in the word list
+                            # Add a constraint that all the letters and the row of the letters must be true
+                            # Add the row to the list of valid rows at the row index
                             pot_word = let1.letter + let2.letter + let3.letter + let4.letter + let5.letter
                             if pot_word in WORDS:
                                 E.add_constraint((
@@ -143,65 +137,45 @@ def build_theory():
                                 ))
                                 valid_rows[row].append(Row(row, let1, let2, let3, let4, let5))
 
+    # For every valid row that we gathered
     for row1 in valid_rows[0]:
         for row2 in valid_rows[1]:
             for row3 in valid_rows[2]:
                 for row4 in valid_rows[3]:
+                    # Add a constraint that each row and the board must be true
+                    # Add the board to the list of valid boards
                     E.add_constraint((
                         (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
                     ))
                     valid_boards.append(Board(row1, row2, row3, row4))
 
-
     return E
 
-def remove_duplicates(boards):
-    pass
-
-# def solutions_count(solutions):
-#     board_solutions = []
-#     for r1 in valid_rows[0]:
-#         for r2 in valid_rows[1]:
-#             for r3 in valid_rows[2]:
-#                 for r4 in valid_rows[3]:
-#                     if solutions[Board(r1, r2, r3, r4)]:
-#                         board_solutions.append(Board(r1, r2, r3, r4))
-#     return board_solutions
-        
-
 def display_board(BOARD):
+    # For each row in the board
     row_iter = [BOARD.row1, BOARD.row2, BOARD.row3, BOARD.row4]
     for row in row_iter:
+        # Print the letters of each row in the board separated by a space
         letter_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
         print(' '.join(letter_iter))
 
 def display_solutions(sol):
     num_sol = len(sol)
+    # If there are 0 board solutions, we cannot display a board
     print(f"Board Solutions: %d" % num_sol)
     if num_sol == 0:
         print('No valid boards to display.')
     else: 
+        # If there are board solutions, pick a random one and display it
         print('Possible solution:')
         display_board(sol[random.randint(0, len(sol)-1)])
 
 if __name__ == "__main__":
     print(f"The final word is: {''.join(SOL)}")
     T = build_theory()
-    # # Don't compile until you're finished adding all your constraints!
     T = T.compile()
-    # After compilation (and only after), you can check some of the properties
-    # of your model:
     print("Satisfiable: %s" % T.satisfiable())
-    # print("# Solutions: %d" % count_solutions(T))
     sol = T.solve()
     unique_sol = []
-    [unique_sol.append(item) for item in sol if item not in unique_sol and isinstance(item, Board)]
-
+    [unique_sol.append(item) for item in sol if item not in unique_sol and hasattr(item, "row1")]
     display_solutions(unique_sol)
-
-    # print("\nVariable likelihoods:")
-    # for v,vn in zip([a,b,c,x,y,z], 'abcxyz'):
-    #     # Ensure that you only send these functions NNF formulas
-    #     # Literals are compiled to NNF here
-    #     print(" %s: %.2f" % (vn, likelihood(T, v)))
-    # print()
