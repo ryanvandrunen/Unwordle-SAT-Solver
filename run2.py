@@ -63,15 +63,6 @@ class Tile(Hashable):
 
     def __str__(self) -> str:
         return f"({self.colour} {self.letter} at {self.x_index}, {self.y_index})"
-    
-@proposition(E)
-class Word(Hashable):
-    def __init__(self, word) -> None:
-        self.word = word
-
-    def __str__(self) -> str:
-        return f"({self.word})"
-
 
 @proposition(E)
 class Row(Hashable):
@@ -117,9 +108,6 @@ for word in WORDS:
 
     
 def build_theory():
-
-    #marker
-    print("got here2")
     
     for r in range(3,-1,-1): 
         for col in range(5):
@@ -165,29 +153,53 @@ def build_theory():
                     E.add_constraint((
                         (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
                     ))
-                    valid_boards.append(Board(row1, row2, row3,))
+                    valid_boards.append(Board(row1, row2, row3, row4))
 
 
     return E
+
+def remove_duplicates(orig_list):
+    result_list = []
+    for sublist in orig_list:
+        temp = list(dict.fromkeys(sublist))
+        result_list.append(temp)
+    
+    return result_list
+
 
 def display_board(BOARD):
     for row in BOARD:
         print(row)
 
 def display_solutions(sol):
-    pprint.pprint(sol)
+    print('Possible first row words: ')
+    for row in valid_rows[0]:
+        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(word_iter))
+    print('Possible second row words: ')
+    for row in valid_rows[1]:
+        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(word_iter))
+    print('Possible third row words: ')
+    for row in valid_rows[2]:
+        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(word_iter))
+    print('Possible third row words: ')
+    for row in valid_rows[3]:
+        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(word_iter))
 
 if __name__ == "__main__":
     T = build_theory()
-    print("got here3")
     # # Don't compile until you're finished adding all your constraints!
     T = T.compile()
     # After compilation (and only after), you can check some of the properties
     # of your model:
-    print("got here4")
     print("\nSatisfiable: %s" % T.satisfiable())
     print("# Solutions: %d" % count_solutions(T))
     sol = T.solve()
+    # get rid of duplicates
+    valid_rows = remove_duplicates(valid_rows)
     display_solutions(sol)
 
     # print("\nVariable likelihoods:")
