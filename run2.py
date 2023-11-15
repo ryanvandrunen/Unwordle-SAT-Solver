@@ -192,3 +192,18 @@ if __name__ == "__main__":
     unique_sol = []
     [unique_sol.append(item) for item in sol if item not in unique_sol and hasattr(item, "row1")]
     display_solutions(unique_sol)
+
+# Board with 1190 solutions and length 1000 word list takes ~1m30s
+# Board with 480 solutions and length 1000 word list takes ~20s
+# Board with 816 solutions and length 2000 word list takes ~20s
+# Board with 1300 solutions and length 2000 word list takes ~50s
+# Board with 336 solutions and length 3834 word list takes ~1m20s
+
+
+# To make our constraints simpler, we decided that hints do not have to be reused
+# e.g. a Yellow Y in the first row does not constrain that a Y must be included in the second row.
+# We also decided that white letters can be reused across the board
+# e.g. a White K is guessed in the first row does not constrain that it cannot be guessed in the second row
+
+# Maximum length word list (3834) and a board with many solutions (>1000) takes too long to compute
+# Limit the word list, right now it's at 2000 words and has a reasonable runtime
