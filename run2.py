@@ -20,9 +20,9 @@ SOL = [x for x in WORDS[random.randint(0, len(WORDS)-1)]]
 NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
 # Give a valid colour layout to the SAT solver
 BOARD = [
-    ["White", "Yellow", "White", "Yellow", "White"],
+    ["White", "Green", "Yellow", "White", "White"],
     ["Yellow", "Green", "White", "White", "White"],
-    ["Yellow", "Green", "Yellow", "Green", "White"],
+    ["White", "Green", "White", "Yellow", "White"],
     ["Green", "Green", "Green", "Green", "Green"],
 ]
 valid_tiles = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]], [[], [], [], [], []]]
@@ -98,14 +98,16 @@ def build_theory():
                 # with the letter from that column of the final word
                 if BOARD[r][col] == "Green": 
                     E.add_constraint(Tile(r,col,"Green",SOL[col]))
-                    valid_tiles[r][col].append(Tile(r,col,"Green",SOL[col]))
+                    if (Tile(r, col, "Green", SOL[col]) not in valid_tiles[r][col]):
+                        valid_tiles[r][col].append(Tile(r,col,"Green",SOL[col]))
                 # If the tile must be yellow, 
                 if BOARD[r][col] == "Yellow": 
                     E.add_constraint(~(Tile(r,col,"Yellow",SOL[col])))  
                 if BOARD[r][col] == "Yellow": 
                     if letter != SOL[col]:
                         E.add_constraint(Tile(r,col,"Yellow",letter))
-                        valid_tiles[r][col].append(Tile(r,col,"Yellow",letter))
+                        if (Tile(r, col, "Yellow", letter) not in valid_tiles[r][col]):
+                            valid_tiles[r][col].append(Tile(r,col,"Yellow",letter))
 
     # Iterate through every tile on the board and every letter not in the final word
     for r in range(2,-1,-1): 
@@ -118,7 +120,8 @@ def build_theory():
                 # is a valid tile at that index
                 if BOARD[r][col] == "White":
                     E.add_constraint(Tile(r,col,"White",letter))
-                    valid_tiles[r][col].append(Tile(r,col,"White",letter))
+                    if (Tile(r, col, "White", letter) not in valid_tiles[r][col]):
+                        valid_tiles[r][col].append(Tile(r,col,"White",letter))
 
     # For every valid tile that we gathered
     for row in range(4):
@@ -135,7 +138,8 @@ def build_theory():
                                 E.add_constraint((
                                     (let1 & let2 & let3 & let4 & let5) & Row(row, let1, let2, let3, let4, let5)
                                 ))
-                                valid_rows[row].append(Row(row, let1, let2, let3, let4, let5))
+                                if (Row(row, let1, let2, let3, let4, let5) not in valid_rows[row]):
+                                    valid_rows[row].append(Row(row, let1, let2, let3, let4, let5))
 
     # For every valid row that we gathered
     for row1 in valid_rows[0]:
@@ -147,7 +151,8 @@ def build_theory():
                     E.add_constraint((
                         (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
                     ))
-                    valid_boards.append(Board(row1, row2, row3, row4))
+                    if (Board(row1, row2, row3, row4) not in valid_boards):
+                        valid_boards.append(Board(row1, row2, row3, row4))
 
     return E
 
@@ -172,6 +177,8 @@ def display_solutions(sol):
 
 if __name__ == "__main__":
     print(f"The final word is: {''.join(SOL)}")
+    if len(SOL) > 5: 
+        raise Exception("Final word is greater than 5.")
     T = build_theory()
     T = T.compile()
     print("Satisfiable: %s" % T.satisfiable())
@@ -179,3 +186,5 @@ if __name__ == "__main__":
     unique_sol = []
     [unique_sol.append(item) for item in sol if item not in unique_sol and hasattr(item, "row1")]
     display_solutions(unique_sol)
+
+# Get screenshot of docker container being killed after long time
