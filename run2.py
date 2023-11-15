@@ -98,6 +98,7 @@ def build_theory():
                 # with the letter from that column of the final word
                 if BOARD[r][col] == "Green": 
                     E.add_constraint(Tile(r,col,"Green",SOL[col]))
+                    # If the tile is not already in the valid tile array, add it
                     if (Tile(r, col, "Green", SOL[col]) not in valid_tiles[r][col]):
                         valid_tiles[r][col].append(Tile(r,col,"Green",SOL[col]))
                 # If the tile must be yellow, 
@@ -106,6 +107,7 @@ def build_theory():
                 if BOARD[r][col] == "Yellow": 
                     if letter != SOL[col]:
                         E.add_constraint(Tile(r,col,"Yellow",letter))
+                        # If the tile is not already in the valid tile array, add it
                         if (Tile(r, col, "Yellow", letter) not in valid_tiles[r][col]):
                             valid_tiles[r][col].append(Tile(r,col,"Yellow",letter))
 
@@ -120,6 +122,7 @@ def build_theory():
                 # is a valid tile at that index
                 if BOARD[r][col] == "White":
                     E.add_constraint(Tile(r,col,"White",letter))
+                    # If the tile is not already in the valid tiles array, add it
                     if (Tile(r, col, "White", letter) not in valid_tiles[r][col]):
                         valid_tiles[r][col].append(Tile(r,col,"White",letter))
 
@@ -138,6 +141,7 @@ def build_theory():
                                 E.add_constraint((
                                     (let1 & let2 & let3 & let4 & let5) & Row(row, let1, let2, let3, let4, let5)
                                 ))
+                                # If the row is not already in the valid rows array, add it
                                 if (Row(row, let1, let2, let3, let4, let5) not in valid_rows[row]):
                                     valid_rows[row].append(Row(row, let1, let2, let3, let4, let5))
 
@@ -151,6 +155,7 @@ def build_theory():
                     E.add_constraint((
                         (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
                     ))
+                    # If the board is not already in the valid boards array, add it
                     if (Board(row1, row2, row3, row4) not in valid_boards):
                         valid_boards.append(Board(row1, row2, row3, row4))
 
@@ -183,8 +188,7 @@ if __name__ == "__main__":
     T = T.compile()
     print("Satisfiable: %s" % T.satisfiable())
     sol = T.solve()
+    # Only pass in unique Board solutions
     unique_sol = []
     [unique_sol.append(item) for item in sol if item not in unique_sol and hasattr(item, "row1")]
     display_solutions(unique_sol)
-
-# Get screenshot of docker container being killed after long time
