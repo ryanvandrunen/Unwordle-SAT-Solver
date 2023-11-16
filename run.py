@@ -1,6 +1,9 @@
 from words import WORDS
 import random
 
+from colorama import Fore, init
+init(autoreset=True)
+
 from bauhaus import Encoding, proposition, constraint, Or, And
 from bauhaus.utils import count_solutions, likelihood
 
@@ -167,7 +170,15 @@ def display_board(BOARD):
     for row in row_iter:
         # Print the letters of each row in the board separated by a space
         letter_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(letter_iter))
+        colour_iter = [row.letterZero.colour.upper(), row.letterOne.colour.upper(), row.letterTwo.colour.upper(), row.letterThree.colour.upper(), row.letterFour.colour.upper()]
+        for i in range(len(letter_iter)):
+            if colour_iter[i] == "GREEN":
+                print(Fore.GREEN + f'{letter_iter[i]} ', end="")
+            elif colour_iter[i] == "YELLOW":
+                print(Fore.YELLOW + f'{letter_iter[i]} ', end="")
+            else:
+                print(Fore.WHITE + f'{letter_iter[i]} ', end="")
+        print('\n', end="")
 
 def display_solutions(sol):
     num_sol = len(sol)
@@ -198,6 +209,7 @@ if __name__ == "__main__":
 # Board with 816 solutions and length 2000 word list takes ~20s
 # Board with 1300 solutions and length 2000 word list takes ~50s
 # Board with 336 solutions and length 3834 word list takes ~1m20s
+# Board with 2392 solutions and length 2000 word list takes ~5m15s
 
 
 # To make our constraints simpler, we decided that hints do not have to be reused
