@@ -208,4 +208,9 @@ if __name__ == "__main__":
 # Maximum length word list (3834) and a board with many solutions (>1000) takes too long to compute
 # Limit the word list, right now it's at 2000 words and has a reasonable runtime
 
-# 
+# One of the major hurdles we overcame was runtime. When keeping track of valid tiles, rows, and boards, lots 
+# of duplicate propositions and constraints were being generated. To fix this issue, and massively 
+# optimize our project, we checked if a proposition was not already in the list before adding it.
+# At first, a board and word that resulted in single-digit solutions would get 'Killed' by the docker container.
+# After implementing these changes, it would compile in seconds. Even a board and word that resulted in 
+# over a thousand solutions took less than a minute to compile.
