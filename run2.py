@@ -207,3 +207,5 @@ if __name__ == "__main__":
 
 # Maximum length word list (3834) and a board with many solutions (>1000) takes too long to compute
 # Limit the word list, right now it's at 2000 words and has a reasonable runtime
+
+# 
