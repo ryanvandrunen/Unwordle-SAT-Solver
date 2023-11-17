@@ -1,6 +1,5 @@
-import itertools
+import itertools, random, time
 from words import WORDS
-import random
 
 from colorama import Fore, init
 init(autoreset=True)
@@ -183,6 +182,7 @@ def display_solutions(sol):
         display_board(sol[random.randint(0, len(sol)-1)])
 
 if __name__ == "__main__":
+    start = time.time()
     print(f"The final word is: {''.join(SOL)}")
     if len(SOL) > 5: 
         raise Exception("Final word is greater than 5.")
@@ -194,6 +194,9 @@ if __name__ == "__main__":
     board_sol = []
     [board_sol.append(item) for item in sol if hasattr(item, "row1")]
     display_solutions(board_sol)
+    end = time.time()
+    elapsed = round(end-start, 2)
+    print(f'Compile time of {elapsed} seconds.\n')
 
 # Board with 1190 solutions and length 1000 word list takes ~1m30s
 # Board with 480 solutions and length 1000 word list takes ~20s
@@ -230,3 +233,6 @@ if __name__ == "__main__":
 # Board with 6630 solutions and length 3834 word list takes ~20s
 # Board with 38686 solutions and length 3834 word list takes ~50s
 # Board with 83600 solutions and length 3834 word list takes ~1m30s
+
+# Used python time library to keep track of elapsed time in seconds.
+# Print elapsed time at the end to see how long it took.
