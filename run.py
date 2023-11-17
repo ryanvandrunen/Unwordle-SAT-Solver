@@ -1,3 +1,4 @@
+import itertools
 from words import WORDS
 import random
 
@@ -18,7 +19,7 @@ config.sat_backend = "kissat"
 E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 # Pick a random word from words.py and split it into a list of characters
-SOL = [x for x in WORDS[random.randint(0, len(WORDS)-1)]]
+SOL = list(WORDS[random.randint(0, len(WORDS)-1)])
 # Generate a list of all the characters not used in the solution
 NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
 # Give a valid colour layout to the SAT solver
@@ -94,40 +95,34 @@ class Board(Hashable):
 def build_theory():
     
     # Iterate through every tile on the board and every letter in the final word
-    for r in range(3,-1,-1): 
-        for col in range(5):
-            for letter in SOL:
-                # If the tile must be green, add a constraint that the Tile at that index must be a Green tile
-                # with the letter from that column of the final word
-                if BOARD[r][col] == "Green": 
-                    E.add_constraint(Tile(r,col,"Green",SOL[col]))
+    for r, col in itertools.product(range(3,-1,-1), range(5)):
+        for letter in SOL:
+            # If the tile must be green, add a constraint that the Tile at that index must be a Green tile
+            # with the letter from that column of the final word
+            if BOARD[r][col] == "Green": 
+                E.add_constraint(Tile(r,col,"Green",SOL[col]))
+                # If the tile is not already in the valid tile array, add it
+                if (Tile(r, col, "Green", SOL[col]) not in valid_tiles[r][col]):
+                    valid_tiles[r][col].append(Tile(r,col,"Green",SOL[col]))
+            # If the tile must be yellow, 
+            if BOARD[r][col] == "Yellow": 
+                E.add_constraint(~(Tile(r,col,"Yellow",SOL[col])))  
+            if BOARD[r][col] == "Yellow" and letter != SOL[col]:
+                    E.add_constraint(Tile(r,col,"Yellow",letter))
                     # If the tile is not already in the valid tile array, add it
-                    if (Tile(r, col, "Green", SOL[col]) not in valid_tiles[r][col]):
-                        valid_tiles[r][col].append(Tile(r,col,"Green",SOL[col]))
-                # If the tile must be yellow, 
-                if BOARD[r][col] == "Yellow": 
-                    E.add_constraint(~(Tile(r,col,"Yellow",SOL[col])))  
-                if BOARD[r][col] == "Yellow": 
-                    if letter != SOL[col]:
-                        E.add_constraint(Tile(r,col,"Yellow",letter))
-                        # If the tile is not already in the valid tile array, add it
-                        if (Tile(r, col, "Yellow", letter) not in valid_tiles[r][col]):
-                            valid_tiles[r][col].append(Tile(r,col,"Yellow",letter))
-
-    # Iterate through every tile on the board and every letter not in the final word
-    for r in range(2,-1,-1): 
-        for col in range(5):
-            for letter in NOTSOL: 
-                # The letter at any index cannot be a Green or Yellow tile
-                E.add_constraint(~(Tile(r,col,"Green",letter)))
-                E.add_constraint(~(Tile(r,col,"Yellow",letter)))
-                # If the index must be White, then any letter not in the solution 
-                # is a valid tile at that index
-                if BOARD[r][col] == "White":
-                    E.add_constraint(Tile(r,col,"White",letter))
-                    # If the tile is not already in the valid tiles array, add it
-                    if (Tile(r, col, "White", letter) not in valid_tiles[r][col]):
-                        valid_tiles[r][col].append(Tile(r,col,"White",letter))
+                    if (Tile(r, col, "Yellow", letter) not in valid_tiles[r][col]):
+                        valid_tiles[r][col].append(Tile(r,col,"Yellow",letter))
+        for letter in NOTSOL: 
+            # The letter at any index cannot be a Green or Yellow tile
+            E.add_constraint(~(Tile(r,col,"Green",letter)))
+            E.add_constraint(~(Tile(r,col,"Yellow",letter)))
+            # If the index must be White, then any letter not in the solution 
+            # is a valid tile at that index
+            if BOARD[r][col] == "White":
+                E.add_constraint(Tile(r,col,"White",letter))
+                # If the tile is not already in the valid tiles array, add it
+                if (Tile(r, col, "White", letter) not in valid_tiles[r][col]):
+                    valid_tiles[r][col].append(Tile(r,col,"White",letter))
 
     # For every valid tile that we gathered
     for row in range(4):
@@ -173,17 +168,17 @@ def display_board(BOARD):
         colour_iter = [row.letterZero.colour.upper(), row.letterOne.colour.upper(), row.letterTwo.colour.upper(), row.letterThree.colour.upper(), row.letterFour.colour.upper()]
         for i in range(len(letter_iter)):
             if colour_iter[i] == "GREEN":
-                print(Fore.GREEN + f'{letter_iter[i]} ', end="")
+                print(f'{Fore.GREEN}{letter_iter[i]} ', end="")
             elif colour_iter[i] == "YELLOW":
-                print(Fore.YELLOW + f'{letter_iter[i]} ', end="")
+                print(f'{Fore.YELLOW}{letter_iter[i]} ', end="")
             else:
-                print(Fore.WHITE + f'{letter_iter[i]} ', end="")
+                print(f'{Fore.WHITE}{letter_iter[i]} ', end="")
         print('\n', end="")
 
 def display_solutions(sol):
     num_sol = len(sol)
     # If there are 0 board solutions, we cannot display a board
-    print(f"Board Solutions: %d" % num_sol)
+    print("Board Solutions: %d" % num_sol)
     if num_sol == 0:
         print('No valid boards to display.')
     else: 
@@ -197,7 +192,7 @@ if __name__ == "__main__":
         raise Exception("Final word is greater than 5.")
     T = build_theory()
     T = T.compile()
-    print("Satisfiable: %s" % T.satisfiable())
+    print(f"Satisfiable: {T.satisfiable()}")
     sol = T.solve()
     # Only pass in unique Board solutions
     unique_sol = []
