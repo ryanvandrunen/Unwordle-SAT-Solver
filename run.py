@@ -29,9 +29,9 @@ BOARD = [
     ["White", "Green", "White", "Yellow", "White"],
     ["Green", "Green", "Green", "Green", "Green"],
 ]
-valid_tiles = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]], [[], [], [], [], []]]
-valid_rows = [[], [], [], []]
-valid_boards = []
+valid_tiles = [[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()], [set(), set(), set(), set(), set()]]
+valid_rows = [set(), set(), set(), set()]
+valid_boards = set()
 
 
 class Hashable:
@@ -102,16 +102,14 @@ def build_theory():
             if BOARD[r][col] == "Green": 
                 E.add_constraint(Tile(r,col,"Green",SOL[col]))
                 # If the tile is not already in the valid tile array, add it
-                if (Tile(r, col, "Green", SOL[col]) not in valid_tiles[r][col]):
-                    valid_tiles[r][col].append(Tile(r,col,"Green",SOL[col]))
+                valid_tiles[r][col].add(Tile(r,col,"Green",SOL[col]))
             # If the tile must be yellow, 
             if BOARD[r][col] == "Yellow": 
                 E.add_constraint(~(Tile(r,col,"Yellow",SOL[col])))  
             if BOARD[r][col] == "Yellow" and letter != SOL[col]:
                     E.add_constraint(Tile(r,col,"Yellow",letter))
                     # If the tile is not already in the valid tile array, add it
-                    if (Tile(r, col, "Yellow", letter) not in valid_tiles[r][col]):
-                        valid_tiles[r][col].append(Tile(r,col,"Yellow",letter))
+                    valid_tiles[r][col].add(Tile(r,col,"Yellow",letter))
         for letter in NOTSOL: 
             # The letter at any index cannot be a Green or Yellow tile
             E.add_constraint(~(Tile(r,col,"Green",letter)))
@@ -121,8 +119,7 @@ def build_theory():
             if BOARD[r][col] == "White":
                 E.add_constraint(Tile(r,col,"White",letter))
                 # If the tile is not already in the valid tiles array, add it
-                if (Tile(r, col, "White", letter) not in valid_tiles[r][col]):
-                    valid_tiles[r][col].append(Tile(r,col,"White",letter))
+                valid_tiles[r][col].add(Tile(r,col,"White",letter))
 
     # For every valid tile that we gathered
     for row in range(4):
@@ -140,8 +137,7 @@ def build_theory():
                                     (let1 & let2 & let3 & let4 & let5) & Row(row, let1, let2, let3, let4, let5)
                                 ))
                                 # If the row is not already in the valid rows array, add it
-                                if (Row(row, let1, let2, let3, let4, let5) not in valid_rows[row]):
-                                    valid_rows[row].append(Row(row, let1, let2, let3, let4, let5))
+                                valid_rows[row].add(Row(row, let1, let2, let3, let4, let5))
 
     # For every valid row that we gathered
     for row1 in valid_rows[0]:
@@ -153,9 +149,9 @@ def build_theory():
                     E.add_constraint((
                         (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
                     ))
-                    # If the board is not already in the valid boards array, add it
-                    if (Board(row1, row2, row3, row4) not in valid_boards):
-                        valid_boards.append(Board(row1, row2, row3, row4))
+                    # Add the board to valid boards set
+                    valid_boards.add(Board(row1, row2, row3, row4))
+                    
 
     return E
 
@@ -195,9 +191,9 @@ if __name__ == "__main__":
     print(f"Satisfiable: {T.satisfiable()}")
     sol = T.solve()
     # Only pass in unique Board solutions
-    unique_sol = []
-    [unique_sol.append(item) for item in sol if item not in unique_sol and hasattr(item, "row1")]
-    display_solutions(unique_sol)
+    board_sol = []
+    [board_sol.append(item) for item in sol if hasattr(item, "row1")]
+    display_solutions(board_sol)
 
 # Board with 1190 solutions and length 1000 word list takes ~1m30s
 # Board with 480 solutions and length 1000 word list takes ~20s
@@ -221,3 +217,16 @@ if __name__ == "__main__":
 # At first, a board and word that resulted in single-digit solutions would get 'Killed' by the docker container.
 # After implementing these changes, it would compile in seconds. Even a board and word that resulted in 
 # over a thousand solutions took less than a minute to compile.
+
+# We were still not satisfied with the time it took to to compile, so we changed all of the inner
+# valid lists to sets, which made the contains check redundant. This removed thousands of 
+# comparisons which optimized our code even further.
+
+# Board with 8700 solutions and length 2000 word list takes ~15s
+# Board with 20700 solutions and length 2000 word list takes ~25s
+
+# After these optimizations, we decided to extend our word list to the full 3834 words. 
+
+# Board with 6630 solutions and length 3834 word list takes ~20s
+# Board with 38686 solutions and length 3834 word list takes ~50s
+# Board with 83600 solutions and length 3834 word list takes ~1m30s
