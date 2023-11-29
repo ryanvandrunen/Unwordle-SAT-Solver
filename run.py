@@ -133,7 +133,7 @@ def build_theory():
                             pot_word = let1.letter + let2.letter + let3.letter + let4.letter + let5.letter
                             if pot_word in WORDS:
                                 E.add_constraint((
-                                    (let1 & let2 & let3 & let4 & let5) & Row(row, let1, let2, let3, let4, let5)
+                                    (let1 & let2 & let3 & let4 & let5) >> Row(row, let1, let2, let3, let4, let5)
                                 ))
                                 # If the row is not already in the valid rows array, add it
                                 valid_rows[row].add(Row(row, let1, let2, let3, let4, let5))
@@ -146,7 +146,7 @@ def build_theory():
                     # Add a constraint that each row and the board must be true
                     # Add the board to the list of valid boards
                     E.add_constraint((
-                        (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
+                        (row1 & row2 & row3 & row4) >> Board(row1, row2, row3, row4)
                     ))
                     # Add the board to valid boards set
                     valid_boards.add(Board(row1, row2, row3, row4))
