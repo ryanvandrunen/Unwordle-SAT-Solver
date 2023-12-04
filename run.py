@@ -1,4 +1,5 @@
 import itertools, random, time
+from itertools import product
 from words import WORDS
 
 from colorama import Fore, init
@@ -120,7 +121,7 @@ def build_theory():
                 # If the tile is not already in the valid tiles array, add it
                 valid_tiles[r][col].add(Tile(r,col,"White",letter))
 
-    # For every valid tile that we gathered
+    #For every valid tile that we gathered
     for row in range(4):
         for let1 in valid_tiles[row][0]:
             for let2 in valid_tiles[row][1]:
@@ -138,19 +139,16 @@ def build_theory():
                                 # If the row is not already in the valid rows array, add it
                                 valid_rows[row].add(Row(row, let1, let2, let3, let4, let5))
 
-    # For every valid row that we gathered
-    for row1 in valid_rows[0]:
-        for row2 in valid_rows[1]:
-            for row3 in valid_rows[2]:
-                for row4 in valid_rows[3]:
-                    # Add a constraint that each row and the board must be true
-                    # Add the board to the list of valid boards
-                    E.add_constraint((
-                        (row1 & row2 & row3 & row4) >> Board(row1, row2, row3, row4)
-                    ))
-                    # Add the board to valid boards set
-                    valid_boards.add(Board(row1, row2, row3, row4))
-                    
+    # Generate combinations of valid_rows
+    for rows_combination in product(*valid_rows):
+        # Unpack the combinations for each row
+        row1, row2, row3, row4 = rows_combination
+
+        # Add a constraint for the combination of rows and the board
+        E.add_constraint(((row1 & row2 & row3 & row4) >> Board(row1, row2, row3, row4)))
+
+        # Add the board to valid_boards set
+        valid_boards.add(Board(row1, row2, row3, row4)) 
 
     return E
 

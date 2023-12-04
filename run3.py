@@ -1,5 +1,5 @@
 from words import WORDS
-import random
+import random, time, itertools
 
 from colorama import Fore, init
 init(autoreset=True)
@@ -18,7 +18,7 @@ config.sat_backend = "kissat"
 E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 # Pick a random word from words.py and split it into a list of characters
-SOL = ['n','a','m','e','s']
+SOL = list(WORDS[random.randint(0, len(WORDS)-1)])
 # Generate a list of all the characters not used in the solution
 NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
 # Give a valid colour layout to the SAT solver
@@ -29,9 +29,9 @@ BOARD = [
     ["White", "Green", "White", "Yellow", "White"],
     ["Green", "Green", "Green", "Green", "Green"],
 ]
-valid_tiles = [[[],[],[],[],[]],[[],[],[],[],[]],[[],[],[],[],[]], [[], [], [], [], []]]
-valid_rows = [[], [], [],[]]
-valid_boards = []
+valid_tiles = [[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()], [set(), set(), set(), set(), set()]]
+valid_rows = [set(), set(), set(), set()]
+valid_boards = set()
 
 
 class Hashable:
@@ -101,25 +101,8 @@ class Board(Hashable):
     def __str__(self) -> str:
         return f"{self.row1} \n {self.row2} \n {self.row3} \n {self.row4}"
 
-    for r in range(3,-1,-1): 
-        for col in range(5):
-            for colour in COLOURS: 
-                Tile(r,col,colour)
-    
-    for r in range(3,-1,-1): 
-        for col in range(5):
-            for letter in ALPHABET: 
-                for colour in COLOURS: 
-                    Letter(r,col,letter,colour)
-
 def build_theory():
 
-    for r in range(3,-1,-1): 
-        for col in range(5):
-            for colour in COLOURS:
-                if BOARD[r][col] != colour: 
-                    E.add_constraint(~(Tile(r,col,colour)))
-                    
     for col in range(5):
         for letter in ALPHABET: 
             if letter == SOL[col]: 
@@ -127,29 +110,60 @@ def build_theory():
             else: 
                 E.add_constraint(~(Letter(3,col,letter,"Green")))
 
-    for r in range(2,-1,-1): 
-        for col in range(5):
-            for letter in ALPHABET: 
-                E.add_constraint((Letter(r,col, letter, "Green" )) >> (Letter(3,col, letter, "Green" )))
-    
-    for r in range(3,-1,-1): 
-        for col1 in range(5):
-            for letter in ALPHABET: 
-                for col2 in range(5):
-                    E.add_constraint((Letter(r,col1, letter, "White")) >> ~(Letter(3,col2,letter,"Green")))
-    
-    for r in range(3,-1,-1): 
-        for col1 in range(5):
-            for letter in ALPHABET: 
-                    E.add_constraint((Letter(r,col1, letter, "Yellow")) >> 
+    for r, col in itertools.product(range(2, -1, -1), range(5)):
+        for letter in ALPHABET:
+            E.add_constraint((Letter(r,col, letter, "Green" )) >> (Letter(3,col, letter, "Green" )))
+            E.add_constraint((Letter(3,col, letter, "Green") >> ~Letter(r,col, letter, "Yellow")))
+
+    for r, col in itertools.product(range(3,-1,-1), range(5)):
+        for letter in ALPHABET:
+            E.add_constraint((Letter(r,col, letter, "Yellow")) >> 
                                             (Letter(3,0,letter,"Green")| Letter (3,1,letter,"Green") |
                                             Letter(3,2,letter,"Green") |Letter(3,3,letter,"Green")|
                                             Letter(3,4,letter,"Green")))
-    for r in range(2,-1,-1): 
-        for col1 in range(5):
-            for letter in ALPHABET: 
-                E.add_constraint((Letter(3,col1, letter, "Green") >> ~Letter(r,col1, letter, "Yellow")))
+            for col2 in range(5):
+                E.add_constraint((Letter(r,col, letter, "White")) >> ~(Letter(3,col2,letter,"Green")))
+            for colour in COLOURS:
+                if BOARD[r][col] != colour: 
+                    E.add_constraint(~(Tile(r,col,colour)))
+                E.add_constraint(((Letter(r,col,letter, colour)) >> (Tile(r,col,colour))))
+
+    # for r in range(3,-1,-1): 
+    #     for col in range(5):
+    #         for colour in COLOURS:
+    #             if BOARD[r][col] != colour: 
+    #                 E.add_constraint(~(Tile(r,col,colour)))
+                    
+    # for r in range(2,-1,-1): 
+    #     for col in range(5):
+    #         for letter in ALPHABET: 
+    #             E.add_constraint((Letter(r,col, letter, "Green" )) >> (Letter(3,col, letter, "Green" )))
     
+    # for r in range(3,-1,-1): 
+    #     for col1 in range(5):
+    #         for letter in ALPHABET: 
+    #             for col2 in range(5):
+    #                 E.add_constraint((Letter(r,col1, letter, "White")) >> ~(Letter(3,col2,letter,"Green")))
+    
+    # for r in range(3,-1,-1): 
+    #     for col1 in range(5):
+    #         for letter in ALPHABET: 
+    #                 E.add_constraint((Letter(r,col1, letter, "Yellow")) >> 
+    #                                         (Letter(3,0,letter,"Green")| Letter (3,1,letter,"Green") |
+    #                                         Letter(3,2,letter,"Green") |Letter(3,3,letter,"Green")|
+    #                                         Letter(3,4,letter,"Green")))
+
+    # for r in range(2,-1,-1): 
+    #     for col1 in range(5):
+    #         for letter in ALPHABET: 
+    #             E.add_constraint((Letter(3,col1, letter, "Green") >> ~Letter(r,col1, letter, "Yellow")))
+    
+    # for r in range(3,-1,-1): 
+    #     for col in range(5):
+    #         for letter in ALPHABET: 
+    #             for colour in COLOURS: 
+    #                 E.add_constraint(((Letter(r,col,letter, colour)) >> (Tile(r,col,colour))))
+
     # for r in range(3,-1,-1): 
     #     for col1 in range(5):
     #         for col2 in range(5):
@@ -157,12 +171,6 @@ def build_theory():
     #                 for colour in COLOURS: 
     #                     if col1 != col2:
     #                         E.add_constraint((Letter(r,col1,letter,colour)) >> ~(Letter(r,col2,letter,colour)))
-
-    for r in range(3,-1,-1): 
-        for col in range(5):
-            for letter in ALPHABET: 
-                for colour in COLOURS: 
-                    E.add_constraint(((Letter(r,col,letter, colour)) >> (Tile(r,col,colour))))
     
     # for r in range(3,-1,-1): 
     #     for col in range(5):
@@ -189,71 +197,24 @@ def build_theory2(arr,vRows,vBoards):
                                     (let1 & let2 & let3 & let4 & let5) & Row(row, let1, let2, let3, let4, let5)
                                 ))
                                 # If the row is not already in the valid rows array, add it
-                                if (Row(row, let1, let2, let3, let4, let5) not in [row]):
-                                    vRows[row].append(Row(row, let1, let2, let3, let4, let5))
+                                vRows[row].add(Row(row, let1, let2, let3, let4, let5))
 
-    vRows[3].append(Row(4, 'n', 'a', 'm', 'e', 's'))
-    # # For every valid row that we gathered
-
+    vRows[3].add(Row(4, Letter(3, 0, SOL[0], 'Green'), Letter(3, 1, SOL[1], 'Green'), Letter(3, 2, SOL[2], 'Green'), Letter(3, 3, SOL[3], 'Green'), Letter(3, 4, SOL[4], 'Green')))
+    
+    # For every valid row that we gathered
     for row1 in vRows[0]:
         for row2 in vRows[1]:
             for row3 in vRows[2]:
                 for row4 in vRows[3]:
                     # Add a constraint that each row and the board must be true
                     # Add the board to the list of valid boards
-                    E.add_constraint((\
+                    E.add_constraint((
                         (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
                     ))
                     # If the board is not already in the valid boards array, add it
-                    if (Board(row1, row2, row3, row4) not in vBoards):
-                        print(Board(row1, row2, row3, row4))
-                        vBoards.append(Board(row1, row2, row3, row4))
+                    vBoards.add(Board(row1, row2, row3, row4))
 
     return E
-
-def display_board(BOARD):
-    # For each row in the board
-    row_iter = [BOARD.row1, BOARD.row2, BOARD.row3, BOARD.row4]
-    for row in row_iter:
-        # Print the letters of each row in the board separated by a space
-        letter_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        colour_iter = [row.letterZero.colour.upper(), row.letterOne.colour.upper(), row.letterTwo.colour.upper(), row.letterThree.colour.upper(), row.letterFour.colour.upper()]
-        for i in range(len(letter_iter)):
-            if colour_iter[i] == "GREEN":
-                print(Fore.GREEN + f'{letter_iter[i]} ', end="")
-            elif colour_iter[i] == "YELLOW":
-                print(Fore.YELLOW + f'{letter_iter[i]} ', end="")
-            else:
-                print(Fore.WHITE + f'{letter_iter[i]} ', end="")
-        print('\n', end="")
-
-# def display_solutions(sol):
-#     num_sol = len(sol)
-#     # If there are 0 board solutions, we cannot display a board
-#     print(f"Board Solutions: %d" % num_sol)
-#     if num_sol == 0:
-#         print('No valid boards to display.')
-#     else: 
-#         # If there are board solutions, pick a random one and display it
-#         print('Possible solution:')
-#         for r in range(3,-1,-1): 
-#             for col in range(5):
-#                 for colour in COLOURS: 
-#                     try:
-#                         if sol[Tile(r,col, colour)]:
-#                             print(Tile(r,col,colour))
-#                     except: 
-#                         continue
-                        
-#         for r in range(3,-1,-1): 
-#             for col in range(5):
-#                 for colour in COLOURS: 
-#                     for letter in ALPHABET: 
-#                         try: 
-#                             if sol[Letter(r,col,letter, colour)]:
-#                                 print(Letter(r,col,letter, colour))
-#                         except: 
-#                             continue
 
 def display_board(BOARD):
     # For each row in the board
@@ -279,38 +240,34 @@ def display_solutions(sol):
         print('No valid boards to display.')
     else: 
         # If there are board solutions, pick a random one and display it
+        sol_list = list(sol)
         print('Possible solution:')
-        display_board(sol[random.randint(0, len(sol)-1)])
+        display_board(random.choice(sol_list))
 
 if __name__ == "__main__":
+    start = time.time()
     print(f"The final word is: {''.join(SOL)}")
     if len(SOL) > 5: 
         raise Exception("Final word is greater than 5.")
     T = build_theory()
     T = T.compile()
-    # T.introspect()
-    print("Satisfiable: %s" % T.satisfiable())
     sol = T.solve()
-    print(f"The final word is: {''.join(SOL)}")
-    for r in range(3,-1,-1): 
-        for col in range(5):
-            for colour in COLOURS: 
-                for letter in ALPHABET: 
-                    if sol[Letter(r,col,letter, colour)]:
-                        valid_tiles[r][col].append(Letter(r,col,letter, colour))
+    for r, col in itertools.product(range(3, -1, -1), range(5)):
+        for colour in COLOURS: 
+            for letter in ALPHABET: 
+                if sol[Letter(r,col,letter, colour)]:
+                    valid_tiles[r][col].add(Letter(r,col,letter, colour))
     J = build_theory2(valid_tiles,valid_rows,valid_boards)
     J = J.compile()
+    print("Satisfiable: %s" % J.satisfiable())
     sol = J.solve()
-    unique_sol = []
-    [unique_sol.append(item) for item in sol if item not in unique_sol and hasattr(item, "row1")]
+    print('here')
+    unique_sol = set()
+    [unique_sol.add(item) for item in sol if hasattr(item, "row1")]
     display_solutions(unique_sol)
-
-
-
-    # Only pass in unique Board solutions
-    # unique_sol = []
-    # [unique_sol.append(item) for item in sol if item not in unique_sol and hasattr(item, "row1")]
-    # display_solutions(unique_sol)
+    end = time.time()
+    elapsed = round(end-start, 2)
+    print(f'Compile time of {elapsed} seconds.\n')
 
 # Board with 1190 solutions and length 1000 word list takes ~1m30s
 # Board with 480 solutions and length 1000 word list takes ~20s
