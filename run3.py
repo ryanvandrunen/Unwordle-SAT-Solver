@@ -19,7 +19,6 @@ E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 # Pick a random word from words.py and split it into a list of characters
 SOL = list(WORDS[random.randint(0, len(WORDS)-1)])
-SOL = ['b', 'a', 'l', 'e', 'r']
 # Generate a list of all the characters not used in the solution
 NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
 # Give a valid colour layout to the SAT solver
