@@ -176,8 +176,9 @@ def display_solutions(sol):
         print('No valid boards to display.')
     else: 
         # If there are board solutions, pick a random one and display it
+        list_sol = list(sol)
         print('Possible solution:')
-        display_board(sol[random.randint(0, len(sol)-1)])
+        display_board(random.choice(list_sol))
 
 if __name__ == "__main__":
     start = time.time()
@@ -189,8 +190,8 @@ if __name__ == "__main__":
     print(f"Satisfiable: {T.satisfiable()}")
     sol = T.solve()
     # Only pass in unique Board solutions
-    board_sol = []
-    [board_sol.append(item) for item in sol if hasattr(item, "row1")]
+    board_sol = set()
+    [board_sol.add(item) for item in sol if hasattr(item, "row1")]
     display_solutions(board_sol)
     end = time.time()
     elapsed = round(end-start, 2)

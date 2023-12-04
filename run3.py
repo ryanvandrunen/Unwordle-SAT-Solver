@@ -19,6 +19,7 @@ E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 # Pick a random word from words.py and split it into a list of characters
 SOL = list(WORDS[random.randint(0, len(WORDS)-1)])
+SOL = ['b', 'a', 'l', 'e', 'r']
 # Generate a list of all the characters not used in the solution
 NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
 # Give a valid colour layout to the SAT solver
@@ -128,91 +129,27 @@ def build_theory():
                     E.add_constraint(~(Tile(r,col,colour)))
                 E.add_constraint(((Letter(r,col,letter, colour)) >> (Tile(r,col,colour))))
 
-    # for r in range(3,-1,-1): 
-    #     for col in range(5):
-    #         for colour in COLOURS:
-    #             if BOARD[r][col] != colour: 
-    #                 E.add_constraint(~(Tile(r,col,colour)))
-                    
-    # for r in range(2,-1,-1): 
-    #     for col in range(5):
-    #         for letter in ALPHABET: 
-    #             E.add_constraint((Letter(r,col, letter, "Green" )) >> (Letter(3,col, letter, "Green" )))
-    
-    # for r in range(3,-1,-1): 
-    #     for col1 in range(5):
-    #         for letter in ALPHABET: 
-    #             for col2 in range(5):
-    #                 E.add_constraint((Letter(r,col1, letter, "White")) >> ~(Letter(3,col2,letter,"Green")))
-    
-    # for r in range(3,-1,-1): 
-    #     for col1 in range(5):
-    #         for letter in ALPHABET: 
-    #                 E.add_constraint((Letter(r,col1, letter, "Yellow")) >> 
-    #                                         (Letter(3,0,letter,"Green")| Letter (3,1,letter,"Green") |
-    #                                         Letter(3,2,letter,"Green") |Letter(3,3,letter,"Green")|
-    #                                         Letter(3,4,letter,"Green")))
-
-    # for r in range(2,-1,-1): 
-    #     for col1 in range(5):
-    #         for letter in ALPHABET: 
-    #             E.add_constraint((Letter(3,col1, letter, "Green") >> ~Letter(r,col1, letter, "Yellow")))
-    
-    # for r in range(3,-1,-1): 
-    #     for col in range(5):
-    #         for letter in ALPHABET: 
-    #             for colour in COLOURS: 
-    #                 E.add_constraint(((Letter(r,col,letter, colour)) >> (Tile(r,col,colour))))
-
-    # for r in range(3,-1,-1): 
-    #     for col1 in range(5):
-    #         for col2 in range(5):
-    #             for letter in ALPHABET: 
-    #                 for colour in COLOURS: 
-    #                     if col1 != col2:
-    #                         E.add_constraint((Letter(r,col1,letter,colour)) >> ~(Letter(r,col2,letter,colour)))
-    
-    # for r in range(3,-1,-1): 
-    #     for col in range(5):
-    #         for colour in COLOURS: 
-    #             for letter in ALPHABET: 
-    #                     valid_tiles[r][col].append(Letter(r,col,letter, colour))
     return E
 
 
 def build_theory2(arr,vRows,vBoards):
-    # For every valid tile that we gathered
+
     for row in range(3):
-        for let1 in arr[row][0]:
-            for let2 in arr[row][1]:
-                for let3 in arr[row][2]:
-                    for let4 in arr[row][3]:
-                        for let5 in arr[row][4]:
-                            # If the letters of all 5 tiles are in the word list
-                            # Add a constraint that all the letters and the row of the letters must be true
-                            # Add the row to the list of valid rows at the row index
-                            pot_word = let1.letter + let2.letter + let3.letter + let4.letter + let5.letter
-                            if pot_word in WORDS:
-                                E.add_constraint((
-                                    (let1 & let2 & let3 & let4 & let5) & Row(row, let1, let2, let3, let4, let5)
-                                ))
-                                # If the row is not already in the valid rows array, add it
-                                vRows[row].add(Row(row, let1, let2, let3, let4, let5))
+        # Generate combinations of valid tiles for each row
+        combinations = itertools.product(*arr[row])
+        for combo in combinations:
+            pot_word = ''.join(letter.letter for letter in combo)
+            if pot_word in WORDS:
+                # Create a constraint for the combination and add it
+                E.add_constraint(And(*combo) & Row(row, *combo))
+                vRows[row].add(Row(row, *combo))
 
     vRows[3].add(Row(4, Letter(3, 0, SOL[0], 'Green'), Letter(3, 1, SOL[1], 'Green'), Letter(3, 2, SOL[2], 'Green'), Letter(3, 3, SOL[3], 'Green'), Letter(3, 4, SOL[4], 'Green')))
-    
-    # For every valid row that we gathered
-    for row1 in vRows[0]:
-        for row2 in vRows[1]:
-            for row3 in vRows[2]:
-                for row4 in vRows[3]:
-                    # Add a constraint that each row and the board must be true
-                    # Add the board to the list of valid boards
-                    E.add_constraint((
-                        (row1 & row2 & row3 & row4) & Board(row1, row2, row3, row4)
-                    ))
-                    # If the board is not already in the valid boards array, add it
-                    vBoards.add(Board(row1, row2, row3, row4))
+
+    combinations = itertools.product(vRows[0], vRows[1], vRows[2], vRows[3])
+    for combo in combinations:
+        E.add_constraint(And(*combo) & Board(*combo))
+        vBoards.add(Board(*combo))
 
     return E
 
@@ -275,7 +212,6 @@ if __name__ == "__main__":
 # Board with 1300 solutions and length 2000 word list takes ~50s
 # Board with 336 solutions and length 3834 word list takes ~1m20s
 # Board with 2392 solutions and length 2000 word list takes ~5m15s
-
 
 # To make our constraints simpler, we decided that hints do not have to be reused
 # e.g. a Yellow Y in the first row does not constrain that a Y must be included in the second row.
