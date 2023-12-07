@@ -26,7 +26,7 @@ def file_checks(stage):
     assert modelling_report_docx or modelling_report_pptx or (report_txt and report_pdf), \
             "Missing your report (Word, PowerPoint, or OverLeaf) in your %s folder" % stage
 
-def test_draft_files():
+def test_draft_files():s
     file_checks('draft')
 
 def test_final_files():

@@ -32,7 +32,12 @@ BOARD = [
 valid_tiles = [[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()], [set(), set(), set(), set(), set()]]
 valid_rows = [set(), set(), set(), set()]
 valid_boards = set()
-
+# def get_board(): 
+#     board_full = False 
+#     row_num = 1 
+#     while board_full == False: 
+#         row = input('In the form ["White", "Green", "Yellow", "White", "White"], \n Please input row ', row_num, ": ")
+#         if 
 
 class Hashable:
     def __hash__(self):
@@ -103,6 +108,7 @@ class Board(Hashable):
 
 def build_theory():
 
+    #for every letter in the last row of the board
     for col in range(5):
         for letter in ALPHABET: 
             if letter == SOL[col]: 
@@ -143,6 +149,7 @@ def build_theory2(arr,vRows,vBoards):
                 E.add_constraint(And(*combo) & Row(row, *combo))
                 vRows[row].add(Row(row, *combo))
 
+    #manually add the solution word letters as (the only) row 4 in potential rows 
     vRows[3].add(Row(4, Letter(3, 0, SOL[0], 'Green'), Letter(3, 1, SOL[1], 'Green'), Letter(3, 2, SOL[2], 'Green'), Letter(3, 3, SOL[3], 'Green'), Letter(3, 4, SOL[4], 'Green')))
 
     combinations = itertools.product(vRows[0], vRows[1], vRows[2], vRows[3])
@@ -179,6 +186,18 @@ def display_solutions(sol):
         sol_list = list(sol)
         print('Possible solution:')
         display_board(random.choice(sol_list))
+
+# def get_board(): 
+#     print("Welcome to UNWORDLE!")
+#     decision = input("Would you like to provide a board for the model or have one randomly generated?",
+#                      "\nPlease enter P to provide a board or R to have a board randomly generated for you" )
+#     while input != 'P' or input != 'R': 
+#         print("Oops! The input you entered was not a valid choice. Please try again: ")
+#         decision = input("Would you like to provide a board for the model or have one randomly generated? (P/R)" )
+#     if input == 'P': 
+        
+# def get_row(num): 
+#     row = input("Please input row ",num ,": ")
 
 if __name__ == "__main__":
     start = time.time()
@@ -226,3 +245,101 @@ if __name__ == "__main__":
 # At first, a board and word that resulted in single-digit solutions would get 'Killed' by the docker container.
 # After implementing these changes, it would compile in seconds. Even a board and word that resulted in 
 # over a thousand solutions took less than a minute to compile.
+
+    # white letters cannot be part of key word
+    for row in BOARD:
+        for column in row:
+            colour = BOARD[row][column]
+            for letter in ALPHABET:
+                E.add_constraint(
+                    ~(
+                        (Tile(column, 3, "Green", letter))
+                        & ((Tile(column, row, "White", letter)))
+                    )
+                )
+
+    # green letter cannot also be yellow in same column
+    for row in BOARD:
+        for column in row:
+            colour = BOARD[row][column]
+            for letter in ALPHABET:
+                E.add_constraint(
+                    ~(
+                        (Tile(column, 3, "Green", letter))
+                        & ((Tile(column, row, "Yellow", letter)))
+                    )
+                )
+
+# ------------------------____________-
+
+# row_num = 0
+# for row in BOARD:
+#     for letter_1 in ALPHABET:
+#         for letter_2 in ALPHABET:
+#             for letter_3 in ALPHABET:
+#                 for letter_4 in ALPHABET:
+#                     for letter_5 in ALPHABET:
+#                         E.add_constraint(
+#                             (
+#                                 (Tile(row, 0, BOARD[row_num][0], letter_1))
+#                                 & ((Tile(row, 1, BOARD[row_num][1], letter_2)))
+#                                 & ((Tile(row, 2, BOARD[row_num][2], letter_3)))
+#                                 & ((Tile(row, 3, BOARD[row_num][3], letter_4)))
+#                                 & ((Tile(row, 4, BOARD[row_num][4], letter_5)))
+#                             )
+#                             >> (
+#                                 Row(
+#                                     row_num,
+#                                     (Tile(row, 0, BOARD[row_num][0], letter_1)),
+#                                     ((Tile(row, 1, BOARD[row_num][1], letter_2))),
+#                                     ((Tile(row, 2, BOARD[row_num][2], letter_3))),
+#                                     ((Tile(row, 3, BOARD[row_num][3], letter_4))),
+#                                     ((Tile(row, 4, BOARD[row_num][4], letter_5))),
+#                                 )
+#                             )
+#                         )
+#     row_num += 1
+
+#         _______________________________________________
+
+#     for r in range(3,-1,-1): 
+#         for col1 in range(5):
+#             for col2 in range(5):
+#                 for letter in ALPHABET:
+#                     E.add_constraint((
+#                             (Tile(r, col1, "Green", letter)) | (Tile(r, col1, "Yellow", letter)) | (Tile(r, col1, "White", letter))
+#                         ))
+#                     if letter not in SOL:
+#                         E.add_constraint(
+#                             (
+#                                 ~(Tile(r, col1, "Green", letter))
+#                             )
+#                         )
+#                         E.add_constraint( ~(Tile(r, col1, "Yellow", letter)))
+#                     else:
+#                         E.add_constraint( ~(Tile(r, col1, "White", letter)))
+#                         if col1 == col2: 
+#                             E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Green", SOL[col1])))
+#                         else: 
+#       
+#                       E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Yellow", SOL[col1])))
+
+
+
+def display_solutions(sol):
+    print('Possible first row words: ')
+    for row in valid_rows[0]:
+        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(word_iter))
+    print('Possible second row words: ')
+    for row in valid_rows[1]:
+        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(word_iter))
+    print('Possible third row words: ')
+    for row in valid_rows[2]:
+        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(word_iter))
+    print('Possible third row words: ')
+    for row in valid_rows[3]:
+        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
+        print(' '.join(word_iter))

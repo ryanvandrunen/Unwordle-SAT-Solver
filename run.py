@@ -189,6 +189,8 @@ if __name__ == "__main__":
     T = T.compile()
     print(f"Satisfiable: {T.satisfiable()}")
     sol = T.solve()
+    print(sol)
+    print("Board Solutions: %d" % num_sol)
     # Only pass in unique Board solutions
     board_sol = set()
     [board_sol.add(item) for item in sol if hasattr(item, "row1")]
