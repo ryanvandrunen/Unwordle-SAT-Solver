@@ -19,6 +19,7 @@ E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 # Pick a random word from words.py and split it into a list of characters
 SOL = list(WORDS[random.randint(0, len(WORDS)-1)])
+SOL = ['b', 'l', 'o', 't', 's']
 # Generate a list of all the characters not used in the solution
 NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
 # Give a valid colour layout to the SAT solver
@@ -56,7 +57,7 @@ class Hashable:
 # other options include: at most one, exactly one, at most k, and implies all.
 # For a complete module reference, see https://bauhaus.readthedocs.io/en/latest/bauhaus.html
 
-# Proposition for a Tile, holds row, column index, colour and letter
+# Proposition for a Tile, holds row and column index, and colour
 @proposition(E)
 class Tile(Hashable):
     def __init__(self, x_index, y_index, colour) -> None:
@@ -67,6 +68,7 @@ class Tile(Hashable):
     def __str__(self) -> str:
         return f"({self.colour} at {self.x_index}, {self.y_index})"
 
+# Proposition for a Letter, holds row and column index, letter and colour
 @proposition(E)
 class Letter(Hashable):
     def __init__(self, x_index, y_index, letter, colour) -> None:
@@ -78,7 +80,7 @@ class Letter(Hashable):
     def __str__(self) -> str:
         return f"({self.colour} {self.letter} at {self.x_index}, {self.y_index})"
 
-# Proposition for a Row, holds row number (0-3) and the 5 tiles it contains
+# Proposition for a Row, holds row number (0-3) and the 5 letters it contains
 @proposition(E)
 class Row(Hashable):
     def __init__(
@@ -108,30 +110,42 @@ class Board(Hashable):
 
 def build_theory():
 
-    #for every letter in the last row of the board
     for col in range(5):
         for letter in ALPHABET: 
+            # If the letter is in this spot in the solution, it must be green
             if letter == SOL[col]: 
                 E.add_constraint((Letter(3,col,letter,"Green")))
+            # If the letter is not in this spot in the solution, it cannot be green
             else: 
                 E.add_constraint(~(Letter(3,col,letter,"Green")))
 
+    # For each letter in the first 3 rows
     for r, col in itertools.product(range(2, -1, -1), range(5)):
         for letter in ALPHABET:
+            # A green letter in any row implies a green letter in the same column in the solution row
             E.add_constraint((Letter(r,col, letter, "Green" )) >> (Letter(3,col, letter, "Green" )))
+            # A green letter in the solution row implies that the letter cannot be yellow in the same column in any other row
             E.add_constraint((Letter(3,col, letter, "Green") >> ~Letter(r,col, letter, "Yellow")))
 
+    # For each letter in each row
     for r, col in itertools.product(range(3,-1,-1), range(5)):
         for letter in ALPHABET:
+            # A yellow letter in any position implies that it must be present in the solution row
             E.add_constraint((Letter(r,col, letter, "Yellow")) >> 
                                             (Letter(3,0,letter,"Green")| Letter (3,1,letter,"Green") |
                                             Letter(3,2,letter,"Green") |Letter(3,3,letter,"Green")|
                                             Letter(3,4,letter,"Green")))
+            # For each position in the solution row
             for col2 in range(5):
+                # A white letter at any position implies that it cannot be present in the solution row
                 E.add_constraint((Letter(r,col, letter, "White")) >> ~(Letter(3,col2,letter,"Green")))
+            # For each colour (white, yellow, green)
             for colour in COLOURS:
+                # If the board configuration at a position is not the current colour
                 if BOARD[r][col] != colour: 
+                    # That letter at that position cannot be the current colour
                     E.add_constraint(~(Tile(r,col,colour)))
+                # A letter at any position with the current colour implies that the tile at that position is the same colour
                 E.add_constraint(((Letter(r,col,letter, colour)) >> (Tile(r,col,colour))))
 
     return E
@@ -143,18 +157,22 @@ def build_theory2(arr,vRows,vBoards):
         # Generate combinations of valid tiles for each row
         combinations = itertools.product(*arr[row])
         for combo in combinations:
+            # If the combination of valid letters is in the word list
             pot_word = ''.join(letter.letter for letter in combo)
             if pot_word in WORDS:
-                # Create a constraint for the combination and add it
-                E.add_constraint(And(*combo) & Row(row, *combo))
+                # The 5 letters imply a row at the given index
+                E.add_constraint(And(*combo) >> Row(row, *combo))
+                # Add it to valid rows list
                 vRows[row].add(Row(row, *combo))
 
-    #manually add the solution word letters as (the only) row 4 in potential rows 
     vRows[3].add(Row(4, Letter(3, 0, SOL[0], 'Green'), Letter(3, 1, SOL[1], 'Green'), Letter(3, 2, SOL[2], 'Green'), Letter(3, 3, SOL[3], 'Green'), Letter(3, 4, SOL[4], 'Green')))
 
+    # Generate combinations of valid rows
     combinations = itertools.product(vRows[0], vRows[1], vRows[2], vRows[3])
     for combo in combinations:
-        E.add_constraint(And(*combo) & Board(*combo))
+        # For every combination, the rows imply a board solution
+        E.add_constraint(And(*combo) >> Board(*combo))
+        # Add the board to valid boarrds list
         vBoards.add(Board(*combo))
 
     return E
@@ -163,14 +181,18 @@ def display_board(BOARD):
     # For each row in the board
     row_iter = [BOARD.row1, BOARD.row2, BOARD.row3, BOARD.row4]
     for row in row_iter:
-        # Print the letters of each row in the board separated by a space
+        # Create letter and colour (converted to uppercase for colorama) iteration list
         letter_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
         colour_iter = [row.letterZero.colour.upper(), row.letterOne.colour.upper(), row.letterTwo.colour.upper(), row.letterThree.colour.upper(), row.letterFour.colour.upper()]
+        # For each letter in the row
         for i in range(len(letter_iter)):
+            # If the colour is green then print it as green
             if colour_iter[i] == "GREEN":
                 print(Fore.GREEN + f'{letter_iter[i]} ', end="")
+            # If the colour is yellow then print it as yellow
             elif colour_iter[i] == "YELLOW":
                 print(Fore.YELLOW + f'{letter_iter[i]} ', end="")
+            # If the colour is white then print it as white
             else:
                 print(Fore.WHITE + f'{letter_iter[i]} ', end="")
         print('\n', end="")
@@ -200,26 +222,32 @@ def display_solutions(sol):
 #     row = input("Please input row ",num ,": ")
 
 if __name__ == "__main__":
+    # Keep track of time elapsed
     start = time.time()
     print(f"The final word is: {''.join(SOL)}")
-    if len(SOL) > 5: 
-        raise Exception("Final word is greater than 5.")
+    # If the word is not 5 letters then raise exception
+    if len(SOL) != 5: 
+        raise Exception("Final word is not 5 letters.")
+    # Compile the build theory
     T = build_theory()
     T = T.compile()
     sol = T.solve()
+    # For every true letter proposition, add it to a set
     for r, col in itertools.product(range(3, -1, -1), range(5)):
         for colour in COLOURS: 
             for letter in ALPHABET: 
                 if sol[Letter(r,col,letter, colour)]:
                     valid_tiles[r][col].add(Letter(r,col,letter, colour))
+    # Compile the 2nd build theory to create row and board constraints
     J = build_theory2(valid_tiles,valid_rows,valid_boards)
     J = J.compile()
     print("Satisfiable: %s" % J.satisfiable())
     sol = J.solve()
-    print('here')
-    unique_sol = set()
-    [unique_sol.add(item) for item in sol if hasattr(item, "row1")]
-    display_solutions(unique_sol)
+    # Use list comprehension to get only the board solutions
+    board_sol = []
+    [board_sol.append(item) for item in sol if hasattr(item, "row1")]
+    display_solutions(board_sol)
+    # Stop time and print elapsed time
     end = time.time()
     elapsed = round(end-start, 2)
     print(f'Compile time of {elapsed} seconds.\n')
@@ -245,101 +273,3 @@ if __name__ == "__main__":
 # At first, a board and word that resulted in single-digit solutions would get 'Killed' by the docker container.
 # After implementing these changes, it would compile in seconds. Even a board and word that resulted in 
 # over a thousand solutions took less than a minute to compile.
-
-    # white letters cannot be part of key word
-    for row in BOARD:
-        for column in row:
-            colour = BOARD[row][column]
-            for letter in ALPHABET:
-                E.add_constraint(
-                    ~(
-                        (Tile(column, 3, "Green", letter))
-                        & ((Tile(column, row, "White", letter)))
-                    )
-                )
-
-    # green letter cannot also be yellow in same column
-    for row in BOARD:
-        for column in row:
-            colour = BOARD[row][column]
-            for letter in ALPHABET:
-                E.add_constraint(
-                    ~(
-                        (Tile(column, 3, "Green", letter))
-                        & ((Tile(column, row, "Yellow", letter)))
-                    )
-                )
-
-# ------------------------____________-
-
-# row_num = 0
-# for row in BOARD:
-#     for letter_1 in ALPHABET:
-#         for letter_2 in ALPHABET:
-#             for letter_3 in ALPHABET:
-#                 for letter_4 in ALPHABET:
-#                     for letter_5 in ALPHABET:
-#                         E.add_constraint(
-#                             (
-#                                 (Tile(row, 0, BOARD[row_num][0], letter_1))
-#                                 & ((Tile(row, 1, BOARD[row_num][1], letter_2)))
-#                                 & ((Tile(row, 2, BOARD[row_num][2], letter_3)))
-#                                 & ((Tile(row, 3, BOARD[row_num][3], letter_4)))
-#                                 & ((Tile(row, 4, BOARD[row_num][4], letter_5)))
-#                             )
-#                             >> (
-#                                 Row(
-#                                     row_num,
-#                                     (Tile(row, 0, BOARD[row_num][0], letter_1)),
-#                                     ((Tile(row, 1, BOARD[row_num][1], letter_2))),
-#                                     ((Tile(row, 2, BOARD[row_num][2], letter_3))),
-#                                     ((Tile(row, 3, BOARD[row_num][3], letter_4))),
-#                                     ((Tile(row, 4, BOARD[row_num][4], letter_5))),
-#                                 )
-#                             )
-#                         )
-#     row_num += 1
-
-#         _______________________________________________
-
-#     for r in range(3,-1,-1): 
-#         for col1 in range(5):
-#             for col2 in range(5):
-#                 for letter in ALPHABET:
-#                     E.add_constraint((
-#                             (Tile(r, col1, "Green", letter)) | (Tile(r, col1, "Yellow", letter)) | (Tile(r, col1, "White", letter))
-#                         ))
-#                     if letter not in SOL:
-#                         E.add_constraint(
-#                             (
-#                                 ~(Tile(r, col1, "Green", letter))
-#                             )
-#                         )
-#                         E.add_constraint( ~(Tile(r, col1, "Yellow", letter)))
-#                     else:
-#                         E.add_constraint( ~(Tile(r, col1, "White", letter)))
-#                         if col1 == col2: 
-#                             E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Green", SOL[col1])))
-#                         else: 
-#       
-#                       E.add_constraint(Tile(3, col1, "Green", SOL[col1]) & (Tile(r, col2, "Yellow", SOL[col1])))
-
-
-
-def display_solutions(sol):
-    print('Possible first row words: ')
-    for row in valid_rows[0]:
-        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(word_iter))
-    print('Possible second row words: ')
-    for row in valid_rows[1]:
-        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(word_iter))
-    print('Possible third row words: ')
-    for row in valid_rows[2]:
-        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(word_iter))
-    print('Possible third row words: ')
-    for row in valid_rows[3]:
-        word_iter = [row.letterZero.letter, row.letterOne.letter, row.letterTwo.letter, row.letterThree.letter, row.letterFour.letter]
-        print(' '.join(word_iter))
