@@ -1,4 +1,4 @@
-# CISC/CMPE 204 Modelling Project
+# CISC/CMPE 204 Group 14 Modelling Project
 
 The goal of this project is to model a rendition of the game Wordle. Wordle is a word guessing game where a correct 5 letter word is chosen, and feedback is given on each player guess. Green tiles represent a letter in the right spot, yellow tiles represent a letter in the wrong spot, and white or grey tiles represent a letter not in the final word. The player's guesses must also be a valid word.
 
