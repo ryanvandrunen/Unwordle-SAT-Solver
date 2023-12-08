@@ -1,5 +1,7 @@
 from words import WORDS
+from boards import BOARDS
 import random, time, itertools
+import string
 
 from colorama import Fore, init
 init(autoreset=True)
@@ -18,27 +20,18 @@ config.sat_backend = "kissat"
 E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 # Pick a random word from words.py and split it into a list of characters
-SOL = list(WORDS[random.randint(0, len(WORDS)-1)])
-SOL = ['b', 'l', 'o', 't', 's']
+SOL = []
 # Generate a list of all the characters not used in the solution
-NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
+NOTSOL = []
 # Give a valid colour layout to the SAT solver
 COLOURS = ["Green", "White", "Yellow"]
-BOARD = [
-    ["White", "Green", "Yellow", "White", "White"],
-    ["Yellow", "Green", "White", "White", "White"],
-    ["White", "Green", "White", "Yellow", "White"],
-    ["Green", "Green", "Green", "Green", "Green"],
-]
+BOARD = []
 valid_tiles = [[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()], [set(), set(), set(), set(), set()]]
 valid_rows = [set(), set(), set(), set()]
 valid_boards = set()
-# def get_board(): 
-#     board_full = False 
-#     row_num = 1 
-#     while board_full == False: 
-#         row = input('In the form ["White", "Green", "Yellow", "White", "White"], \n Please input row ', row_num, ": ")
-#         if 
+
+invalid_char = string.printable
+invalid_char = invalid_char.replace('G', '').replace('Y', '').replace('W', '')
 
 class Hashable:
     def __hash__(self):
@@ -209,21 +202,53 @@ def display_solutions(sol):
         print('Possible solution:')
         display_board(random.choice(sol_list))
 
-# def get_board(): 
-#     print("Welcome to UNWORDLE!")
-#     decision = input("Would you like to provide a board for the model or have one randomly generated?",
-#                      "\nPlease enter P to provide a board or R to have a board randomly generated for you" )
-#     while input != 'P' or input != 'R': 
-#         print("Oops! The input you entered was not a valid choice. Please try again: ")
-#         decision = input("Would you like to provide a board for the model or have one randomly generated? (P/R)" )
-#     if input == 'P': 
-        
-# def get_row(num): 
-#     row = input("Please input row ",num ,": ")
+def get_board(): 
+    decision = input("Would you like to provide a board for the model or have one randomly generated? \nPlease enter P to provide a board or R to have a board randomly generated for you: " )
+    while decision != 'P' and decision != 'R': 
+        decision = input("Oops! The input you entered was not a valdi choice, please try again: ")
+    if decision == 'R':
+        return random.choice(BOARDS)
+    else:
+        board_list = []
+        print('Input the colour of each tile in order of the given row using G, Y, W (YWGYW)')
+        for i in range(3):
+            row_inp = input(f'Row {i}: ')
+            while len(row_inp) != 5 or any(elem in row_inp for elem in invalid_char):
+                row_inp = input("Invalid input detected, please try again: ")
+            row_inp = row_inp.replace('G', 'Green,').replace('W', 'White,').replace('Y', 'Yellow,').split(',')
+            row_inp.pop()
+            board_list.append(row_inp)
+    board_list.append(['Green', 'Green', 'Green', "Green", "Green"])
+    return board_list
+
+def get_word():
+    decision = input("Would you like to provide a solution word for the model or have one randomly generated? \nEnter P to provide a word or R to have a word randomly generated for you: ")
+    while decision != 'P' and decision != 'R':
+        decision = input("Oops! The input you entered was not a valdi choice, please try again: ")
+    if decision == 'R':
+        return random.choice(WORDS)
+    else:
+        word = input("Enter the 5 letter word you would like for the solution: ")
+        while len(word) != 5 or not word.isalpha():
+            decision = input("Invalid input detected, please try again: ")
+        return word.lower()
+
+def main():
+    print("Welcome to UNWORDLE!")
+    b = get_board()
+    w = get_word()
+    return w, b
+    
+
+
 
 if __name__ == "__main__":
     # Keep track of time elapsed
     start = time.time()
+    w, b = main()
+    BOARD = b
+    SOL = list(w)
+    NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
     print(f"The final word is: {''.join(SOL)}")
     # If the word is not 5 letters then raise exception
     if len(SOL) != 5: 
@@ -251,25 +276,3 @@ if __name__ == "__main__":
     end = time.time()
     elapsed = round(end-start, 2)
     print(f'Compile time of {elapsed} seconds.\n')
-
-# Board with 1190 solutions and length 1000 word list takes ~1m30s
-# Board with 480 solutions and length 1000 word list takes ~20s
-# Board with 816 solutions and length 2000 word list takes ~20s
-# Board with 1300 solutions and length 2000 word list takes ~50s
-# Board with 336 solutions and length 3834 word list takes ~1m20s
-# Board with 2392 solutions and length 2000 word list takes ~5m15s
-
-# To make our constraints simpler, we decided that hints do not have to be reused
-# e.g. a Yellow Y in the first row does not constrain that a Y must be included in the second row.
-# We also decided that white letters can be reused across the board
-# e.g. a White K is guessed in the first row does not constrain that it cannot be guessed in the second row
-
-# Maximum length word list (3834) and a board with many solutions (>1000) takes too long to compute
-# Limit the word list, right now it's at 2000 words and has a reasonable runtime
-
-# One of the major hurdles we overcame was runtime. When keeping track of valid tiles, rows, and boards, lots 
-# of duplicate propositions and constraints were being generated. To fix this issue, and massively 
-# optimize our project, we checked if a proposition was not already in the list before adding it.
-# At first, a board and word that resulted in single-digit solutions would get 'Killed' by the docker container.
-# After implementing these changes, it would compile in seconds. Even a board and word that resulted in 
-# over a thousand solutions took less than a minute to compile.
