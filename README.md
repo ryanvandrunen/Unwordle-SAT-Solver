@@ -15,8 +15,8 @@ Our model is given a board configuration - the colours of each position in the b
 
 ## Team
 
-[Madison MacNeil](https://github.com/madisonmacneil)
-[Simon Nair](https://github.com/Simon-Nair)
+[Madison MacNeil](https://github.com/madisonmacneil) <br />
+[Simon Nair](https://github.com/Simon-Nair) <br />
 [Ryan Van Drunen](https://github.com/ryanvandrunen)
 
 ## Running With Docker
