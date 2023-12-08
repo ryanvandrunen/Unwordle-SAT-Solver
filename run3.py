@@ -203,7 +203,7 @@ def display_solutions(sol):
         display_board(random.choice(sol_list))
 
 def get_board(): 
-    decision = input("Would you like to provide a board for the model or have one randomly generated? \nPlease enter P to provide a board or R to have a board randomly generated for you: " )
+    decision = input("Would you like to provide a board for the model or have one randomly generated? \nPlease enter P to provide a board or R to have a board randomly generated for you: " ).upper()
     while decision != 'P' and decision != 'R': 
         decision = input("Oops! The input you entered was not a valdi choice, please try again: ")
     if decision == 'R':
@@ -222,7 +222,7 @@ def get_board():
     return board_list
 
 def get_word():
-    decision = input("Would you like to provide a solution word for the model or have one randomly generated? \nEnter P to provide a word or R to have a word randomly generated for you: ")
+    decision = input("Would you like to provide a solution word for the model or have one randomly generated? \nEnter P to provide a word or R to have a word randomly generated for you: ").lower()
     while decision != 'P' and decision != 'R':
         decision = input("Oops! The input you entered was not a valdi choice, please try again: ")
     if decision == 'R':
@@ -231,15 +231,13 @@ def get_word():
         word = input("Enter the 5 letter word you would like for the solution: ")
         while len(word) != 5 or not word.isalpha():
             decision = input("Invalid input detected, please try again: ")
-        return word.lower()
+        return word
 
 def main():
     print("Welcome to UNWORDLE!")
     b = get_board()
     w = get_word()
     return w, b
-    
-
 
 
 if __name__ == "__main__":
