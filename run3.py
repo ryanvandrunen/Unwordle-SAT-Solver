@@ -237,8 +237,8 @@ def get_word():
     else:
         # Ask for a 5 letter word, make sure its 5 letters and does not contain any special characters
         word = input("Enter the 5 letter word you would like for the solution: ").lower()
-        while len(word) != 5 or not word.isalpha():
-            decision = input("Invalid input detected, please try again: ")
+        while len(word) != 5 or not word.isalpha() or word not in WORDS:
+            decision = input("Invalid input detected, the word must be in the word list, please try again: ")
         return word
 
 def main():
