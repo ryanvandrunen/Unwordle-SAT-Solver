@@ -19,17 +19,17 @@ config.sat_backend = "kissat"
 #global vars 
 E = Encoding()
 ALPHABET = "abcdefghijklmnopqrstuvwxyz"
-# Pick a random word from words.py and split it into a list of characters
 SOL = []
-# Generate a list of all the characters not used in the solution
-NOTSOL = []
-# Give a valid colour layout to the SAT solver
 COLOURS = ["Green", "White", "Yellow"]
 BOARD = []
+
+# Valid proposition sets
 valid_tiles = [[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()],[set(),set(),set(),set(),set()], [set(), set(), set(), set(), set()]]
 valid_rows = [set(), set(), set(), set()]
 valid_boards = set()
 
+
+# String of invalid characters for input validation
 invalid_char = string.printable
 invalid_char = invalid_char.replace('G', '').replace('Y', '').replace('W', '')
 
@@ -254,7 +254,6 @@ if __name__ == "__main__":
     w, b = main()
     BOARD = b
     SOL = list(w)
-    NOTSOL = [letter for letter in ALPHABET if letter not in SOL]
     print(f"The final word is: {''.join(SOL)}")
     # If the word is not 5 letters then raise exception
     if len(SOL) != 5: 
