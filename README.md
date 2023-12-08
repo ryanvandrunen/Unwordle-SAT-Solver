@@ -2,13 +2,22 @@
 
 Welcome to the major project for CISC/CMPE 204!
 
-Change this README.md file to summarize your project, and provide pointers to the general structure of the repository. How you organize and build things (which files, how you structure things, etc) is entirely up to you! The only things you must keep in place are what is already listed in the **Structure** section below.
+The goal of this project is to model a rendition of the game Wordle. Wordle is a word guessing game where a correct 5 letter word is chosen, and feedback is given on each player guess. Green tiles represent a letter in the right spot, yellow tiles represent a letter in the wrong spot, and white or grey tiles represent a letter not in the final word. The player's guesses must also be a valid word.
+
+Our model is given a board configuration - the colours of each position in the board in a 2D array - as well as a final word, and is tasked to find all possible solutions, while displaying one possibility.
 
 ## Structure
 
 * `documents`: Contains folders for both of your draft and final submissions. README.md files are included in both.
 * `run.py`: General wrapper script that you can choose to use or not. Only requirement is that you implement the one function inside of there for the auto-checks.
 * `test.py`: Run this file to confirm that your submission has everything required. This essentially just means it will check for the right files and sufficient theory size.
+* `words.py`:
+
+## Team
+
+[Madison MacNeil](https://github.com/madisonmacneil)
+[Simon Nair](https://github.com/Simon-Nair)
+[Ryan Van Drunen](https://github.com/ryanvandrunen)
 
 ## Running With Docker
 
