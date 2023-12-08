@@ -203,6 +203,7 @@ def display_solutions(sol):
         display_board(random.choice(sol_list))
 
 def get_board(): 
+    # Get user input if they would like to give a board or have one selected for them
     decision = input("Would you like to provide a board for the model or have one randomly generated? \nPlease enter P to provide a board or R to have a board randomly generated for you: " ).upper()
     while decision != 'P' and decision != 'R': 
         decision = input("Oops! The input you entered was not a valdi choice, please try again: ")
@@ -210,25 +211,32 @@ def get_board():
         return random.choice(BOARDS)
     else:
         board_list = []
+        # Get user input for each row
         print('Input the colour of each tile in order of the given row using G, Y, W (YWGYW)')
         for i in range(3):
             row_inp = input(f'Row {i}: ')
             while len(row_inp) != 5 or any(elem in row_inp for elem in invalid_char):
                 row_inp = input("Invalid input detected, please try again: ")
+            # Replace characters with full words then make it into a list
             row_inp = row_inp.replace('G', 'Green,').replace('W', 'White,').replace('Y', 'Yellow,').split(',')
             row_inp.pop()
             board_list.append(row_inp)
+    # Manually add the solution row
     board_list.append(['Green', 'Green', 'Green', "Green", "Green"])
     return board_list
 
 def get_word():
-    decision = input("Would you like to provide a solution word for the model or have one randomly generated? \nEnter P to provide a word or R to have a word randomly generated for you: ").lower()
+    # Get user input if they would like to give a word or have one selected for them
+    decision = input("Would you like to provide a solution word for the model or have one randomly generated? \nEnter P to provide a word or R to have a word randomly generated for you: ").upper()
     while decision != 'P' and decision != 'R':
         decision = input("Oops! The input you entered was not a valdi choice, please try again: ")
     if decision == 'R':
+        # Randomly select a word if
         return random.choice(WORDS)
+    # OR 
     else:
-        word = input("Enter the 5 letter word you would like for the solution: ")
+        # Ask for a 5 letter word, make sure its 5 letters and does not contain any special characters
+        word = input("Enter the 5 letter word you would like for the solution: ").lower()
         while len(word) != 5 or not word.isalpha():
             decision = input("Invalid input detected, please try again: ")
         return word
